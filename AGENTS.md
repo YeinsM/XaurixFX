@@ -10,8 +10,7 @@ Busca en [docs/bugs.md](docs/bugs.md) por área/síntoma antes de modificar comp
 Las instrucciones de sistema y del usuario prevalecen sobre estos documentos.
 
 ## Alcance autorizado
-Esta entrega contiene exclusivamente agentes y documentación. No iniciar la aplicación
-hasta que el usuario solicite la siguiente fase. Destinos acordados: backend/ para Node.js,
+El usuario autorizó la fase de implementación el 2026-09-08, con demostración hasta definir integraciones reales. Destinos acordados: backend/ para Node.js,
 frontend/ para React y Tailwind; PostgreSQL como base de datos. No elegir silenciosamente
 framework backend, ORM, proveedor de alojamiento o integración PAMM.
 Los agentes aquí son perfiles de desarrollo, no agentes de inversión ni procesos autónomos
