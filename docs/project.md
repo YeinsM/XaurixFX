@@ -9,8 +9,8 @@
 - Cada cliente ve resultados correspondientes a su capital/participación en el conjunto.
 - Horizonte de largo plazo con fecha tentativa de retiro a un año.
 - Área de cursos, análisis, contenido y enlaces a redes sociales.
-- Diseño futuro basado en una maqueta con libertad de mejora; maqueta aún no facilitada.
-- Fase actual: agentes y documentación exclusivamente.
+- Diseño futuro basado en una maqueta con libertad de mejora; maqueta facilitada el 2026-09-08: negro/dorado; logo provisional.
+- Fase actual: primera implementación local autorizada; demostración confirmada por el usuario hasta definir PAMM y cripto.
 
 ## Decisiones que deben resolverse antes del módulo dependiente
 | ID | Decisión | Afecta |

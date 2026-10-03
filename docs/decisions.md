@@ -21,3 +21,11 @@ Sin comprometer la cobertura monetaria para ahorrar tokens.
 Estado: confirmado por el usuario para stack y separación; reglas pendientes en project.md.
 No trasladar MongoDB, Prisma, MUI, módulos ni proveedores del torneo.
 La fase de código se iniciará en un encargo posterior.
+
+## ADR-004 — Primera implementación local — 2026-09-08
+Estado: implementación autorizada por el usuario; demo confirmada explícitamente.
+TypeScript en ambos proyectos, React/Vite/Tailwind, Fastify y pg sin ORM.
+Cookies opacas HttpOnly con hash de sesión persistido, una cuenta por usuario,
+registro transaccional y consultas parametrizadas. PostgreSQL18.1 probado localmente.
+Contenido inicial estático de lectura. No activar fondos reales sin D03-D08.
+D10 resuelto por la imagen suministrada; logo temporal. D11 resuelto para esta base técnica.

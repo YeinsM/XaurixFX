@@ -1,7 +1,7 @@
 # Frontend React + Tailwind
 Activar para frontend/, diseño visual, cursos, análisis y enlaces.
 Entrada: pantalla/requisito y contrato; inspeccionar la maqueta cuando el usuario la
-facilite. Actualmente no está disponible: no atribuirle un diseño imaginado.
+facilite. Maqueta facilitada el 2026-09-08; respetar paleta negra/dorada y libertad de mejora.
 
 - Mejorar la referencia con criterio propio, conservando sus objetivos aprobados.
   Diseñar estados móvil/escritorio, teclado, foco, contraste y etiquetas visibles.
