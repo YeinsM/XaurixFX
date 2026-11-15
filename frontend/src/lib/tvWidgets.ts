@@ -9,35 +9,15 @@ const base = { colorTheme: 'dark', isTransparent: true, locale: 'es' } as const;
 
 export const tvScriptUrl = (script: string) => `https://s3.tradingview.com/external-embedding/embed-widget-${script}.js`;
 
-const tvSymbols: Record<string, { pro: string; title: string }> = {
-  BTC: { pro: 'COINBASE:BTCUSD', title: 'Bitcoin' },
-  ETH: { pro: 'COINBASE:ETHUSD', title: 'Ethereum' },
-  SOL: { pro: 'COINBASE:SOLUSD', title: 'Solana' },
-  SPX: { pro: 'FOREXCOM:SPXUSD', title: 'S&P 500' },
-  DJI: { pro: 'FOREXCOM:DJI', title: 'Dow Jones' },
-  NDX: { pro: 'NASDAQ:NDX', title: 'Nasdaq 100' },
-  EURUSD: { pro: 'FX:EURUSD', title: 'EUR/USD' },
-  GBPUSD: { pro: 'FX:GBPUSD', title: 'GBP/USD' },
-  USDJPY: { pro: 'FX:USDJPY', title: 'USD/JPY' },
-  AAPL: { pro: 'NASDAQ:AAPL', title: 'Apple' },
-  MSFT: { pro: 'NASDAQ:MSFT', title: 'Microsoft' },
-  NVDA: { pro: 'NASDAQ:NVDA', title: 'NVIDIA' },
-  TSLA: { pro: 'NASDAQ:TSLA', title: 'Tesla' },
-};
-const defaultTape = ['SPX', 'NDX', 'DJI', 'EURUSD', 'BTC', 'ETH'];
+const tape = [
+  { proName: 'FOREXCOM:SPXUSD', title: 'S&P 500' }, { proName: 'NASDAQ:NDX', title: 'Nasdaq 100' }, { proName: 'FOREXCOM:DJI', title: 'Dow Jones' },
+  { proName: 'FX:EURUSD', title: 'EUR/USD' }, { proName: 'OANDA:XAUUSD', title: 'Oro' }, { proName: 'COINBASE:BTCUSD', title: 'Bitcoin' }, { proName: 'COINBASE:ETHUSD', title: 'Ethereum' },
+];
 
-export const tvSymbolFor = (symbol: string): string | null => tvSymbols[symbol]?.pro ?? null;
-
-/** Ticker tape follows the visitor's own list; unknown symbols are dropped. */
-export function tapeSymbols(list: readonly string[]): { proName: string; title: string }[] {
-  const known = list.filter(symbol => symbol in tvSymbols);
-  return (known.length ? known : defaultTape).map(symbol => ({ proName: tvSymbols[symbol]!.pro, title: tvSymbols[symbol]!.title }));
-}
-
-export const tickerTape = (list: readonly string[]): TvWidget => ({
+export const tickerTape: TvWidget = {
   script: 'ticker-tape', height: 78,
-  config: { ...base, symbols: tapeSymbols(list), showSymbolLogo: true, displayMode: 'adaptive' },
-});
+  config: { ...base, symbols: tape, showSymbolLogo: true, displayMode: 'adaptive' },
+};
 
 const tab = (title: string, symbols: [string, string][]) => ({ title, symbols: symbols.map(([s, d]) => ({ s, d })) });
 

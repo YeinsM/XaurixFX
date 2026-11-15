@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap, tapeSymbols, tvScriptUrl, tvSymbolFor } from './tvWidgets';
+import { economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap, tickerTape, tvScriptUrl } from './tvWidgets';
 
-const widgets = { economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap };
+const widgets = { tickerTape, economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap };
 
 describe('TradingView widgets', () => {
   it('every widget is dark, transparent and in Spanish', () => {
@@ -20,17 +20,8 @@ describe('TradingView widgets', () => {
     expect(tabs.every(tab => tab.title && tab.symbols.length > 0)).toBe(true);
   });
 
-  it('maps our symbols to TradingView symbols and drops unknown ones', () => {
-    expect(tvSymbolFor('BTC')).toBe('COINBASE:BTCUSD');
-    expect(tvSymbolFor('NOPE')).toBeNull();
-    expect(tapeSymbols(['BTC', 'NOPE', 'EURUSD'])).toEqual([
-      { proName: 'COINBASE:BTCUSD', title: 'Bitcoin' },
-      { proName: 'FX:EURUSD', title: 'EUR/USD' },
-    ]);
-  });
-
-  it('falls back to a default tape when the list is empty', () => {
-    expect(tapeSymbols([]).length).toBeGreaterThan(3);
+  it('ticker tape has a default symbol list', () => {
+    expect((tickerTape.config.symbols as unknown[]).length).toBeGreaterThan(3);
   });
 });
 

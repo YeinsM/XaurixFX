@@ -29,21 +29,4 @@ export const content = {
       ],
     },
   ],
-  analyses: [
-    { id: 'lectura-mensual', title: 'Cómo leer un cierre mensual', category: 'Lectura de resultados', date: '2026-09-08', summary: 'Un ejercicio para separar movimientos de capital y resultados.', body: [
-      'Contenido demostrativo · Este ejercicio utiliza datos ficticios y no describe el mercado actual ni una cartera real.',
-      'Imagina un saldo inicial de 1,000, un aporte de 200 y un saldo final de 1,230. La diferencia de saldo es 230, pero 200 proceden del aporte. Para explicar los 30 restantes aún habría que comprobar comisiones y otros conceptos. Para una rentabilidad comparable también se necesitan las fechas de los movimientos.',
-      'Al revisar un cierre, busca la fecha de valoración, el detalle de movimientos y la metodología. Una cifra aislada no sustituye esos datos.',
-    ] },
-    { id: 'perspectiva', title: 'Perspectiva antes que una cifra', category: 'Educación', date: '2026-09-06', summary: 'Qué cambia al observar el mismo gráfico en distintos períodos.', body: [
-      'Contenido demostrativo · Los escenarios son ilustrativos y no constituyen una lectura de mercados en tiempo real.',
-      'Una semana positiva puede formar parte de un mes negativo y una caída diaria puede ocurrir dentro de un período que termine al alza. Compara ventanas coherentes y revisa si la escala del gráfico cambia al modificar el intervalo.',
-      'En el panel de ejemplo puedes explorar períodos sin que ello represente una previsión. En una cuenta nueva no hay historial y la pantalla lo indica de forma explícita.',
-    ] },
-    { id: 'calidad-datos', title: 'La fecha del dato también importa', category: 'Transparencia', date: '2026-09-03', summary: 'Diferencia un valor disponible de una valoración actualizada.', body: [
-      'Contenido demostrativo · Esta nota explica conceptos y no contiene cotizaciones ni señales de inversión.',
-      'Una valoración necesita una fecha y una fuente. Si no están disponibles, no es correcto presentar un saldo como actualizado. Los retrasos, revisiones y cambios de metodología deben mantenerse visibles para que la comparación tenga sentido.',
-      'En XaurixFX las cuentas recién creadas muestran valores iniciales en cero y ninguna valoración. Los importes del modo demo pertenecen exclusivamente al ejemplo público.',
-    ] },
-  ],
 };

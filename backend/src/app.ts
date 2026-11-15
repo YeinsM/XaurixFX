@@ -2,31 +2,19 @@ import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import type { Pool } from 'pg';
 import { hashPassword, verifyPassword } from './security.js';
-import { createSession, findUserByEmail, getAccount, getSessionUser, registerUser, revokeSession, SESSION_SECONDS, updateProfile, type User } from './repository.js';
+import { createSession, findUserByEmail, getSessionUser, registerUser, revokeSession, SESSION_SECONDS, updateProfile, type User } from './repository.js';
 import { emptyQuery, loginBody, profileBody, registerBody } from './schemas.js';
-import { blockedReason, capabilities, demoDashboard } from './demo.js';
 import { content } from './content.js';
-import { readMarket, runMarketRefresh, type ProviderKeys } from './market/refresh.js';
-import type { FetchLike } from './market/providers.js';
 
 class HttpError extends Error {
   constructor(public statusCode: number, message: string) { super(message); }
 }
 
-export type MarketOptions = { keys: ProviderKeys; cronSecret?: string; fetchFn?: FetchLike };
-
-function bearerMatches(header: string | undefined, secret: string | undefined): boolean {
-  if (!secret || !header?.startsWith('Bearer ')) return false;
-  const given = Buffer.from(header.slice(7));
-  const expected = Buffer.from(secret);
-  return given.length === expected.length && timingSafeEqual(given, expected);
-}
-
-export function buildApp(options: { pool: Pool; origin: string; secureCookies: boolean; logger?: boolean; market?: MarketOptions }) {
-  const { pool, origin, secureCookies, market } = options;
+export function buildApp(options: { pool: Pool; origin: string; secureCookies: boolean; logger?: boolean }) {
+  const { pool, origin, secureCookies } = options;
   const app = Fastify({
     logger: options.logger ? { redact: ['req.headers.cookie', 'req.headers.authorization', 'res.headers["set-cookie"]'] } : false,
     bodyLimit: 16 * 1024,
@@ -80,13 +68,6 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
       return reply.code(503).send({ message: 'La base de datos no está disponible.' });
     }
   });
-  app.get('/api/demo/dashboard', { schema: { querystring: emptyQuery } }, async () => demoDashboard);
-  app.get('/api/market', { schema: { querystring: emptyQuery } }, async () => ({ assets: await readMarket(pool) }));
-  // Called by a scheduler (Vercel Cron or similar); GET because those schedulers only issue GET.
-  app.get('/api/internal/market/refresh', { schema: { querystring: emptyQuery }, config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
-    if (!market || !bearerMatches(request.headers.authorization, market.cronSecret)) return reply.code(401).send({ message: 'No autorizado.' });
-    return { results: await runMarketRefresh(pool, market.keys, market.fetchFn ?? fetch) };
-  });
   app.get('/api/content', { schema: { querystring: emptyQuery } }, async () => content);
 
   app.post<{ Body: { name: string; email: string; password: string } }>('/api/auth/register', {
@@ -128,19 +109,6 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
     return { user: await updateProfile(pool, user.id, request.body.name.trim()) };
   });
 
-  app.get('/api/dashboard', { schema: { querystring: emptyQuery } }, async request => {
-    const user = await requireUser(request);
-    const account = await getAccount(pool, user.id);
-    if (!account) throw new Error('Registered user is missing account');
-    return { mode: 'live', user, account, performance: [], transactions: [], capabilities };
-  });
-
-  for (const path of ['/api/deposits', '/api/withdrawals']) {
-    app.post(path, { schema: { querystring: emptyQuery } }, async (request, reply) => {
-      await requireUser(request);
-      return reply.code(503).send({ message: blockedReason });
-    });
-  }
   });
   return app;
 }

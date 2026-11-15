@@ -22,7 +22,6 @@ export async function registerUser(pool: Pool, name: string, email: string, pass
       [name, email, passwordHash],
     );
     const user = result.rows[0]!;
-    await client.query('INSERT INTO accounts (user_id) VALUES ($1)', [user.id]);
     const token = await insertSession(client, user.id);
     await client.query('COMMIT');
     return { user, token };
@@ -61,12 +60,3 @@ export async function updateProfile(pool: Pool, userId: string, name: string): P
   return result.rows[0]!;
 }
 
-export async function getAccount(pool: Pool, userId: string) {
-  const result = await pool.query(
-    `SELECT id, currency, balance::text, principal::text, profit::text,
-     return_percent::text AS "returnPercent", participation_percent::text AS "participationPercent",
-     valuation_at AS "valuationAt", target_date::text AS "targetDate", status
-     FROM accounts WHERE user_id = $1`, [userId],
-  );
-  return result.rows[0];
-}

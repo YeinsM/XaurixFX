@@ -25,17 +25,12 @@ All request/response bodies are JSON except the empty logout response. Errors us
 | `GET /api/auth/me` | Session | `{user}`; missing/revoked/expired session: 401 |
 | `POST /api/auth/logout` | Origin | Revokes current session, clears cookie, returns 204. Repeating logout is harmless. |
 | `PATCH /api/profile` | Session + origin | `{name}` → `{user}` for the session owner; last successful update wins |
-| `GET /api/dashboard` | Session | Account belonging to the session owner, `mode:"live"`, empty histories, disabled financial capabilities |
-| `GET /api/demo/dashboard` | Public | Same dashboard shape, `mode:"demo"`, explicitly fictitious public fixture |
-| `GET /api/content` | Public | `{courses,analyses}`; starter text lessons and clearly illustrative analysis, no video/media claims |
-| `POST /api/deposits` | Session + origin | Always 503 with explanation; no instructions/address generated and no movement written |
-| `POST /api/withdrawals` | Session + origin | Always 503 with explanation; no movement written |
+| `GET /api/content` | Public | `{courses}`; starter text lessons, no video/media claims |
 
-Dashboard fields: `mode`, `user`, `account`, `performance`, `transactions`, `capabilities`. `account` contains `id`, `currency`, `balance`, `principal`, `profit`, `returnPercent`, `participationPercent`, `valuationAt`, `targetDate`, `status`. Monetary values and percentages are decimal strings; unavailable percentages/dates are null. Live accounts begin at zero with `pending_integration` status. `mode:"live"` means an actual registered user's stored account, not a live broker feed. No calculation or allocation policy is implemented. Numeric columns use exact `numeric(38,18)` placeholders so this foundation does not silently impose a two-decimal crypto policy; integration requires a reviewed currency/precision/ledger design.
 
 ## Identity and database integrity
 
-Registration inserts the user, their unique account, and a session in one transaction. Email uniqueness is enforced in PostgreSQL after normalization. A unique `accounts.user_id` constraint prevents concurrent duplicate accounts. All account/profile lookups use session identity. Passwords use asynchronous scrypt with independent random 16-byte salts. Sessions use random 32-byte tokens; PostgreSQL stores SHA-256 digests, a seven-day expiration and revocation timestamps. Cookies are HttpOnly and SameSite=Strict. Authentication routes have per-IP rate limits; these in-memory limits assume a single instance and require a shared limiter before horizontal deployment. Reset, email verification, MFA, administration and financial actions are outside this starter's scope.
+Registration inserts the user and a session in one transaction. Email uniqueness is enforced in PostgreSQL after normalization. The investor `accounts` table was removed (migration 002) after the pivot to a course-selling landing.
 
 ## Migrations and verification
 

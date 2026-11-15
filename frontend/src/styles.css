@@ -141,3 +141,4 @@ main { max-width:1560px; margin:0 auto; padding:35px 38px 0; outline:0; }
 /* The page is color-scheme: dark but TradingView's documents are not: that mismatch makes the browser paint
    transparent iframes with an opaque light backdrop. Matching the iframe's scheme keeps them transparent. */
 .tv-box iframe { color-scheme: light; }
+.mk-header nav a.active { color:var(--gold); }

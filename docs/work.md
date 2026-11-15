@@ -6,12 +6,12 @@ duplicarlo. Estados: definido, en curso, pendiente de decisión, verificado.
 | ID | Alcance / aceptación | Estado | Evidencia |
 |---|---|---|---|
 | AG-01 | Perfiles selectivos, coordinación, memoria de bugs y fuentes; sin código de aplicación | verificado | validación documental y revisión independiente; ver abajo |
-| APP-01 | Una cuenta por usuario y aislamiento entre clientes | definido | sin implementación |
+| APP-01 | Cuentas de usuario con login (sin saldos) | verificado | 8 pruebas de integración; tabla accounts eliminada en migración 002 |
 | APP-02 | Depósitos cripto conciliados con aporte PAMM | descartado 2026-11-15 | cambio de enfoque, ver project.md |
 | APP-03 | Rendimiento individual reproducible según participación efectiva | descartado 2026-11-15 | cambio de enfoque |
 | APP-04 | Seguimiento del horizonte anual y retiro | descartado 2026-11-15 | cambio de enfoque |
 | APP-05 | Cursos: catálogo, imágenes, precio USDT, pago por hash ERC-20, descarga | definido | sin implementación |
-| APP-07 | Home de mercados: cotizaciones en caché con turnos por proveedor | en curso | backend: migración 002, planificador, proveedores, /api/market; 15 pruebas unitarias y 13 de integración pasan; frontend: home con cotizaciones propias y 6 widgets de TradingView cargando (cinta, panorama, calendario, noticias, ganadores, mapa de calor); 14 pruebas de frontend; falta licencia comercial de TradingView y datos de Massive guardados |
+| APP-07 | Home de mercados con widgets de TradingView (cinta, panorama, calendario, noticias, ganadores, mapa de calor) | en curso | frontend compila; 7 pruebas; los datos propios (CoinGecko/EODHD/Massive) se retiraron a petición del usuario y siguen en el commit 857b672; falta confirmar licencia comercial de TradingView |
 | APP-06 | React/Tailwind con mejora de maqueta | pendiente de decisión | D10 |
 
 ## Handoff activo
