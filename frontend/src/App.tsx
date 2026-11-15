@@ -7,14 +7,15 @@ import { BrokerPage } from './components/BrokerPage';
 import { AuthForm } from './components/AuthForm';
 import { CommunityPage } from './components/CommunityPage';
 import { HomePage } from './components/HomePage';
+import { InicioPage } from './components/InicioPage';
 import { NewsPage } from './components/NewsPage';
 import { Modal } from './components/Modal';
 import { ProfileSettings } from './components/ProfileSettings';
 import { SiteHeader } from './components/SiteHeader';
 
-const pages: Page[] = ['home', 'news', 'academy', 'broker', 'community', 'settings'];
-const titles: Record<Page, string> = { home: 'Mercados', news: 'Noticias', academy: 'Academia', broker: 'Broker', community: 'Comunidad', settings: 'Configuración' };
-const currentPage = (): Page => { const hash = location.hash.slice(1) as Page; return pages.includes(hash) ? hash : 'home'; };
+const pages: Page[] = ['inicio', 'home', 'news', 'academy', 'broker', 'community', 'settings'];
+const titles: Record<Page, string> = { inicio: 'Inicio', home: 'Mercados', news: 'Noticias', academy: 'Academia', broker: 'Broker', community: 'Comunidad', settings: 'Configuración' };
+const currentPage = (): Page => { const hash = location.hash.slice(1) as Page; return pages.includes(hash) ? hash : 'inicio'; };
 
 export default function App() {
   const [page, setPage] = useState<Page>(currentPage);
@@ -34,7 +35,7 @@ export default function App() {
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 4500); return () => clearTimeout(timer); }, [toast]);
 
   async function logout() {
-    try { await api('/auth/logout', { method: 'POST' }); setUser(null); navigate('home'); setToast('Sesión cerrada.'); }
+    try { await api('/auth/logout', { method: 'POST' }); setUser(null); navigate('inicio'); setToast('Sesión cerrada.'); }
     catch (e) { setToast(e instanceof Error ? e.message : 'No se pudo cerrar sesión.'); }
   }
 
@@ -42,6 +43,7 @@ export default function App() {
     <div className="mk-page">
       <a href="#main-content" className="skip-link">Saltar al contenido</a>
       <SiteHeader page={page} user={user} onNavigate={navigate} onLogin={() => setAuthOpen(true)} onLogout={() => void logout()} />
+      {page === 'inicio' && <InicioPage onNavigate={navigate} />}
       {page === 'home' && <HomePage />}
       {page === 'news' && <NewsPage />}
       {page === 'academy' && <AcademyPage />}

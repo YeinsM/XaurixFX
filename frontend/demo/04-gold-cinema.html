@@ -1,0 +1,70 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo 4 · Gold Cinema</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;800&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f11;--panel:#141619;--b:#282b2f;--t:#ececea;--m:#95979f;--gold:#d9b46b}
+*{box-sizing:border-box;margin:0}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--t);font-family:Manrope,sans-serif;overflow-x:hidden}
+.ld{position:fixed;inset:0;background:var(--bg);z-index:200;display:grid;place-items:center;transition:opacity .8s .2s,visibility 0s 1s}.ld.off{opacity:0;visibility:hidden}.ld b{font-weight:800;letter-spacing:.4em;color:var(--gold);animation:p 1s infinite alternate}@keyframes p{to{opacity:.3}}
+nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:26px 4vw;mix-blend-mode:difference}nav b{letter-spacing:.3em;font-weight:800}nav a{color:#fff;text-decoration:none;margin-left:34px;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase}
+.hero{height:100vh;position:relative;overflow:hidden;display:grid;place-items:center;text-align:center}
+#sky{position:absolute;inset:0;width:100%;height:100%}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 38%,rgba(13,15,17,.1),rgba(13,15,17,.85) 70%),linear-gradient(transparent 60%,var(--bg))}
+.hc{position:relative;z-index:3;padding:0 5vw}
+.k{font-size:.72rem;letter-spacing:.5em;color:var(--gold);text-transform:uppercase;opacity:0;animation:f 1.4s 1.2s forwards}
+h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(3.2rem,10vw,9.5rem);line-height:.92;letter-spacing:-.03em;margin:26px 0}h1 em{color:var(--gold)}
+.ch{display:inline-block;opacity:0;transform:translateY(60px) rotateX(-70deg);animation:ch 1.2s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*.05s + 1.4s)}@keyframes ch{to{opacity:1;transform:none}}
+.sub{color:var(--m);font-weight:300;max-width:520px;margin:auto;line-height:1.8;opacity:0;animation:f 1.4s 2.6s forwards}@keyframes f{to{opacity:1}}
+.hint{position:absolute;bottom:32px;left:50%;translate:-50%;z-index:3;font-size:.65rem;letter-spacing:.4em;color:var(--m);display:grid;gap:12px;justify-items:center}.hint::after{content:"";width:1px;height:50px;background:linear-gradient(var(--gold),transparent);animation:dr 2s infinite}@keyframes dr{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+/* horizontal pinned track */
+.pin{height:360vh;position:relative}.stick{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
+.track{display:flex;gap:4vw;padding:0 8vw;will-change:transform}
+.intro{flex:0 0 38vw;min-width:320px}.intro h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(2.6rem,6vw,5.5rem);line-height:.98}.intro h2 em{color:var(--gold)}.intro p{color:var(--m);margin-top:24px;line-height:1.8;font-weight:300}
+.pc{flex:0 0 min(34vw,440px);min-width:290px;height:62vh;border:1px solid var(--b);border-radius:28px;background:linear-gradient(170deg,#1a1d21,var(--panel));padding:34px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;transition:border-color .4s}
+.pc:hover{border-color:var(--gold)}.pc::before{content:attr(data-n);position:absolute;right:-10px;top:-30px;font-family:'Cormorant Garamond',serif;font-size:14rem;color:rgba(217,180,107,.07);line-height:1}
+.pc small{color:var(--gold);letter-spacing:.3em;font-size:.7rem;font-weight:800}.pc h3{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:2.4rem;line-height:1;margin:14px 0}.pc p{color:var(--m);font-weight:300;line-height:1.7;font-size:.95rem}.pc .pr{font-weight:800;font-size:1.3rem}.pc .pr span{color:var(--m);font-weight:300;font-size:.8rem}
+.prog{position:absolute;left:8vw;right:8vw;bottom:44px;height:1px;background:var(--b)}.prog i{display:block;height:100%;width:0;background:var(--gold)}
+.band{padding:18vh 6vw;text-align:center;position:relative;border-top:1px solid var(--b)}
+.band h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(2.4rem,6.5vw,6rem);line-height:1}.band h2 em{color:var(--gold)}
+.btn{display:inline-block;margin-top:46px;padding:18px 38px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;letter-spacing:.2em;font-size:.78rem;font-weight:800;text-transform:uppercase;position:relative;overflow:hidden;transition:color .5s;z-index:0}
+.btn::before{content:"";position:absolute;inset:0;background:var(--gold);transform:translateY(101%);transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:-1}.btn:hover{color:#111}.btn:hover::before{transform:none}
+.note{max-width:720px;margin:44px auto 0;font-size:.72rem;color:var(--m);line-height:1.7}
+footer{padding:30px 4vw;color:var(--m);font-size:.78rem;border-top:1px solid var(--b);display:flex;justify-content:space-between}
+@media(max-width:800px){.pin{height:auto}.stick{position:relative;height:auto;overflow:visible;padding:80px 0}.track{flex-direction:column;transform:none!important;padding:0 6vw}.intro,.pc{flex:none;width:100%;height:auto;min-height:280px}.prog{display:none}nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ch,.k,.sub{opacity:1;transform:none}}
+</style></head><body>
+<div class="ld" id="ld"><b>XAURIX</b></div>
+<nav><b>XAURIX FX</b><div><a href="#">Mercados</a><a href="#">Academia</a><a href="#">Broker</a></div></nav>
+<header class="hero"><canvas id="sky"></canvas>
+<div class="hc"><div class="k">Mercados · Academia · Comunidad</div>
+<h1 id="h"></h1>
+<p class="sub">Un horizonte de datos, noticias y cursos para quien decide con calma. Formación de mercados con criterio.</p></div><div class="hint">DESLIZA</div></header>
+<div class="pin" id="pin"><div class="stick"><div class="track" id="tr">
+<div class="intro"><h2>Aprende a leer <em>el horizonte.</em></h2><p>Cursos que se actualizan, se descargan y se conservan en tu cuenta. Algunos, gratuitos.</p></div>
+<article class="pc" data-n="1"><div><small>FUNDAMENTOS</small><h3>Lectura de gráficos</h3><p>Velas, tendencia y estructura de precio explicadas desde cero.</p></div><div class="pr">Gratis <span>· contenido de entrada</span></div></article>
+<article class="pc" data-n="2"><div><small>NOTICIAS</small><h3>Bancos centrales</h3><p>Cómo leer comunicados oficiales y su efecto en los mercados.</p></div><div class="pr">49 USDT <span>· red Ethereum</span></div></article>
+<article class="pc" data-n="3"><div><small>MÉTODO</small><h3>Gestión del riesgo</h3><p>Tamaño de posición, pérdidas máximas y disciplina operativa.</p></div><div class="pr">79 USDT <span>· red Ethereum</span></div></article>
+<article class="pc" data-n="4"><div><small>PRÁCTICA</small><h3>Cuenta demo</h3><p>Aplica lo aprendido sin arriesgar fondos antes de decidir.</p></div><div class="pr">Gratis <span>· con tu registro</span></div></article>
+</div><div class="prog"><i id="pg"></i></div></div></div>
+<section class="band"><h2>Del dato al <em>criterio.</em></h2><a class="btn" href="#">Conocer PU Prime ↗</a><p class="note">Enlace de afiliado: XaurixFX podría recibir una comisión. Los CFD son productos complejos con alto riesgo de pérdida. Contenido informativo; no es asesoría de inversión. Precios y cursos de esta demo son ilustrativos.</p></section>
+<footer><span>© 2026 Xaurix FX</span><span>Demo ilustrativa</span></footer>
+<script>
+const $=s=>document.querySelector(s);
+// split title into chars
+const lines=[['Entiende los'],['<em>mercados.</em>']];let n=0;
+$('#h').innerHTML=['Entiende los','<em>mercados.</em>'].map(l=>`<div>${l.replace(/(<[^>]+>)|(\S)/g,(m,tag,c)=>tag?tag:`<span class=ch style="--i:${n++}">${c}</span>`).replace(/ /g,'&nbsp;')}</div>`).join('');
+addEventListener('load',()=>setTimeout(()=>$('#ld').classList.add('off'),600));
+// skyline: candles grow once, then breathe; scroll lowers them
+const cv=$('#sky'),x=cv.getContext('2d');let W,H,C=[];
+function sz(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;
+ const d=devicePixelRatio,w=16*d,g=7*d,N=Math.ceil(W/(w+g));let p=.3;C=Array.from({length:N},(_,i)=>{const o=p,c=Math.max(.08,Math.min(.8,o+(Math.random()-.46)*.1));p=c;return{o,c,h:Math.max(o,c)+Math.random()*.05,l:Math.min(o,c)-Math.random()*.05,x:i*(w+g),w,ph:Math.random()*6.28,dl:i*28}})}sz();addEventListener('resize',sz);
+const t0=performance.now();
+function f(t){const e=t-t0,d=devicePixelRatio;x.clearRect(0,0,W,H);const sc=1-Math.min(1,scrollY/innerHeight)*.5;
+ C.forEach(c=>{const k=Math.max(0,Math.min(1,(e-1000-c.dl)/1400)),ea=1-Math.pow(1-k,3),br=1+Math.sin(t/1500+c.ph)*.03,B=H*1.02,Y=v=>B-v*H*.9*ea*br*sc,up=c.c>=c.o;
+  const gr=x.createLinearGradient(0,Y(c.h),0,B);const col=up?'217,180,107':'140,120,86';gr.addColorStop(0,`rgba(${col},${up?.85:.4})`);gr.addColorStop(1,`rgba(${col},0)`);
+  x.strokeStyle=`rgba(${col},.55)`;x.lineWidth=1.5*d;x.beginPath();x.moveTo(c.x+c.w/2,Y(c.h));x.lineTo(c.x+c.w/2,Y(c.l));x.stroke();
+  x.fillStyle=gr;const top=Math.min(Y(c.o),Y(c.c));x.fillRect(c.x,top,c.w,B-top)});
+ requestAnimationFrame(f)}requestAnimationFrame(f);
+// horizontal scroll
+const pin=$('#pin'),tr=$('#tr'),pg=$('#pg');
+function hs(){if(innerWidth<=800)return;const r=pin.getBoundingClientRect(),max=pin.offsetHeight-innerHeight,k=Math.max(0,Math.min(1,-r.top/max)),dist=tr.scrollWidth-innerWidth;tr.style.transform=`translateX(${-k*dist}px)`;pg.style.width=k*100+'%'}
+addEventListener('scroll',hs,{passive:true});addEventListener('resize',hs);hs();
+</script></body></html>

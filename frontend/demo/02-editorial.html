@@ -1,0 +1,63 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo 2 · Editorial</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2ede2;--ink:#14110a;--m:#6d665a;--gold:#b8872b;--line:#d6cfbf;--up:#1d6b4f;--dn:#a3342f}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;overflow-x:hidden}
+.w{width:min(1280px,90%);margin:auto;position:relative;z-index:2}
+nav{position:fixed;inset:0 0 auto;z-index:20;mix-blend-mode:multiply}nav .w{display:flex;justify-content:space-between;align-items:center;height:76px}
+.logo{font-family:Fraunces,serif;font-size:1.5rem;font-weight:600;letter-spacing:-.02em}.logo i{color:var(--gold)}
+nav a{color:var(--ink);text-decoration:none;margin-left:30px;font-size:.88rem;font-weight:500;background:linear-gradient(var(--ink),var(--ink)) 0 100%/0 1px no-repeat;transition:background-size .4s}nav a:hover{background-size:100% 1px}
+#chart{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#chart path,#chart line{vector-effect:non-scaling-stroke}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:140px 0 70px}
+.kick{font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;color:var(--m);margin-bottom:26px;display:flex;gap:14px;align-items:center}.kick::before{content:"";width:50px;height:1px;background:var(--ink)}
+h1{font-family:Fraunces,serif;font-weight:300;font-size:clamp(3.4rem,11vw,10.5rem);line-height:.9;letter-spacing:-.05em}
+h1 em{font-style:italic;color:var(--gold)}
+.ln{display:block;overflow:hidden}.ln span{display:block;transform:translateY(105%);animation:u 1.3s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*.15s + .1s)}@keyframes u{to{transform:none}}
+.row{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-top:50px;flex-wrap:wrap;opacity:0;animation:f 1.2s .9s forwards}@keyframes f{to{opacity:1}}
+.row p{max-width:430px;line-height:1.7;color:var(--m)}
+.btn{display:inline-flex;gap:12px;align-items:center;padding:16px 30px;background:var(--ink);color:var(--bg);border-radius:999px;text-decoration:none;font-weight:500;transition:.35s}.btn:hover{background:var(--gold);padding-right:42px}
+.items{border-top:1px solid var(--ink)}
+.it{display:grid;grid-template-columns:90px 1fr 1fr 40px;gap:30px;align-items:center;padding:42px 0;border-bottom:1px solid var(--line);position:relative;transition:padding .5s cubic-bezier(.2,.8,.2,1);cursor:default}
+.it::before{content:"";position:absolute;inset:0 -4vw;background:var(--ink);transform:scaleY(0);transform-origin:bottom;transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:-1}
+.it:hover::before{transform:scaleY(1)}.it:hover{color:var(--bg);padding-left:20px}.it:hover p{color:#b9b1a0}
+.it small{font-family:Fraunces,serif;font-size:1.1rem;color:var(--gold)}.it h3{font-family:Fraunces,serif;font-weight:300;font-size:clamp(1.8rem,3.6vw,3.2rem);letter-spacing:-.03em}.it p{color:var(--m);line-height:1.6;transition:color .4s}.it span{font-size:1.6rem;transition:transform .4s}.it:hover span{transform:translate(6px,-6px)}
+section{padding:130px 0;position:relative}
+.rv{opacity:0;transform:translateY(40px);transition:1s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
+.q{font-family:Fraunces,serif;font-weight:300;font-size:clamp(2rem,5vw,4.4rem);line-height:1.08;letter-spacing:-.03em;max-width:1050px}.q em{color:var(--gold)}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);margin-top:90px;border-top:1px solid var(--ink)}.nums div{padding:30px 0;border-right:1px solid var(--line)}.nums div:last-child{border:0}.nums b{font-family:Fraunces,serif;font-weight:300;font-size:clamp(3rem,7vw,6rem);letter-spacing:-.05em;display:block}.nums span{color:var(--m);font-size:.85rem}
+.cta{background:var(--ink);color:var(--bg);padding:130px 0;position:relative;z-index:2}.cta h2{font-family:Fraunces,serif;font-weight:300;font-size:clamp(2.4rem,6vw,5.4rem);letter-spacing:-.04em;line-height:1}.cta h2 em{color:#e0b660}.cta .btn{background:var(--bg);color:var(--ink);margin-top:44px}.cta small{display:block;color:#9b9482;margin-top:34px;max-width:760px;line-height:1.7;font-size:.76rem}
+.bgfix{position:relative;z-index:2}
+@media(max-width:800px){.it{grid-template-columns:40px 1fr}.it p,.it span{display:none}.nums{grid-template-columns:1fr}nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ln span,.row,.rv{opacity:1;transform:none}}
+</style></head><body>
+<svg id="chart" preserveAspectRatio="none"></svg>
+<nav><div class="w"><div class="logo">Xaurix<i>FX</i></div><div><a href="#">Mercados</a><a href="#">Academia</a><a href="#">Broker</a><a href="#">Ingresar</a></div></div></nav>
+<header class="w hero"><div class="kick">Mercados · Cursos · Criterio</div>
+<h1><span class="ln"><span style="--i:0">Entiende los</span></span><span class="ln"><span style="--i:1"><em>mercados</em>,</span></span><span class="ln"><span style="--i:2">aprende despacio.</span></span></h1>
+<div class="row"><p>Cotizaciones, noticias oficiales traducidas y cursos descargables. Una publicación sobre los mercados que se lee, se entiende y se aplica.</p><a class="btn" href="#">Explorar los mercados →</a></div></header>
+<section class="bgfix"><div class="w"><div class="items rv">
+<div class="it"><small>01</small><h3>Mercados</h3><p>Índices, divisas, materias primas y cripto en un panel con gráfico interactivo.</p><span>↗</span></div>
+<div class="it"><small>02</small><h3>Noticias</h3><p>Fuentes oficiales resumidas al español, con enlace al documento original.</p><span>↗</span></div>
+<div class="it"><small>03</small><h3>Academia</h3><p>Cursos que se actualizan. Pagas en USDT y descargas cuando quieras.</p><span>↗</span></div>
+<div class="it"><small>04</small><h3>Broker</h3><p>Abre una cuenta demo o real con PU Prime desde nuestro enlace de afiliado.</p><span>↗</span></div></div></div></section>
+<section class="bgfix"><div class="w"><p class="q rv">No predecimos el mercado. Te enseñamos a <em>leerlo</em> con método, datos y paciencia.</p>
+<div class="nums rv"><div><b data-n="40">0</b><span>Activos en el panel</span></div><div><b data-n="6">0</b><span>Widgets de mercado</span></div><div><b data-n="100">0</b><span>% en español</span></div></div></div></section>
+<div class="cta"><div class="w rv"><h2>El siguiente paso <em>es tuyo.</em></h2><a class="btn" href="#">Conocer PU Prime ↗</a><small>Enlace de afiliado: XaurixFX podría recibir una comisión. Los CFD son productos complejos con alto riesgo de pérdida. Contenido informativo; no es asesoría de inversión. Cifras de esta demo ilustrativas.</small></div></div>
+<script>
+const NS='http://www.w3.org/2000/svg',svg=document.getElementById('chart');svg.setAttribute('viewBox','0 0 1000 1000');
+// ink candles drawn along a rising path; stroke draws with scroll
+let p=720,N=64,g=document.createElementNS(NS,'g');svg.append(g);const cs=[];
+for(let i=0;i<N;i++){const o=p,c=o-(Math.random()-.36)*34;p=Math.max(120,Math.min(900,c));const h=Math.min(o,c)-Math.random()*20,l=Math.max(o,c)+Math.random()*20,x=40+i*15;
+ const up=c<=o,col=up?'#1d6b4f':'#a3342f';
+ const w=document.createElementNS(NS,'line');w.setAttribute('x1',x+4);w.setAttribute('x2',x+4);w.setAttribute('y1',h);w.setAttribute('y2',l);
+ const b=document.createElementNS(NS,'rect');b.setAttribute('x',x);b.setAttribute('width',8);b.setAttribute('y',Math.min(o,c));b.setAttribute('height',Math.max(3,Math.abs(o-c)));
+ [w,b].forEach(e=>{e.setAttribute('stroke',col);e.setAttribute('fill',e===b&&up?'none':e===b?col:'none');e.setAttribute('stroke-width',1.5);e.setAttribute('opacity',0)});
+ g.append(w,b);cs.push([w,b])}
+g.setAttribute('opacity',.35);
+function upd(){const s=scrollY/(document.documentElement.scrollHeight-innerHeight),show=Math.min(N,Math.floor((s*1.15+.06)*N));cs.forEach(([w,b],i)=>{const on=i<show;w.style.opacity=b.style.opacity=on?1:0;w.style.transition=b.style.transition='opacity .6s';})}
+upd();addEventListener('scroll',upd,{passive:true});
+// grow in at load
+let k=0;const iv=setInterval(()=>{if(k<10){cs[k][0].style.opacity=cs[k][1].style.opacity=1;k++}else clearInterval(iv)},120);
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('[data-n]').forEach(n=>{let v=0,t=+n.dataset.n;const f=()=>{v+=t/50;n.textContent=Math.min(Math.round(v),t);if(v<t)requestAnimationFrame(f)};f()});io.unobserve(e.target)}}),{threshold:.2});document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+</script></body></html>

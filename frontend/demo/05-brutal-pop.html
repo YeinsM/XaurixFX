@@ -1,0 +1,53 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo 5 · Brutal Pop</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root{--y:#ffd23f;--k:#0b0b0b;--w:#fffdf5;--g:#17c27b;--r:#ff4d4d;--bl:#3a5bff}
+*{box-sizing:border-box;margin:0}body{background:var(--w);color:var(--k);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:crosshair}
+.top{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:14px 3vw;background:var(--w);border-bottom:3px solid var(--k)}
+.top b{font-family:Anton;font-size:1.7rem;letter-spacing:.04em}.top b i{background:var(--y);padding:0 8px;font-style:normal;border:3px solid var(--k);margin-left:6px}
+.top a{color:var(--k);text-decoration:none;font-weight:700;margin-left:24px;position:relative}.top a:hover{background:var(--y)}
+.bt{display:inline-block;padding:15px 26px;background:var(--k);color:var(--w);border:3px solid var(--k);font-weight:700;text-decoration:none;box-shadow:6px 6px 0 var(--y);transition:.15s;cursor:pointer}.bt:hover{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--y)}.bt.y{background:var(--y);color:var(--k);box-shadow:6px 6px 0 var(--k)}.bt.y:hover{box-shadow:2px 2px 0 var(--k)}
+.hero{position:relative;background:var(--y);border-bottom:3px solid var(--k);overflow:hidden;min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 3vw}
+#cv{position:absolute;inset:0;width:100%;height:100%}
+.hero h1{position:relative;z-index:2;font-family:Anton;font-weight:400;font-size:clamp(4rem,15.5vw,16rem);line-height:.86;text-transform:uppercase;letter-spacing:-.01em;pointer-events:none}
+.hero h1 span{display:block;transform:translateX(-110vw);animation:sl 1s cubic-bezier(.2,.9,.2,1) forwards;animation-delay:calc(var(--i)*.15s)}.hero h1 span:nth-child(2){animation-name:sr;transform:translateX(110vw);-webkit-text-stroke:3px var(--k);color:transparent}@keyframes sl{to{transform:none}}@keyframes sr{to{transform:none}}
+.hero .sub{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-top:30px;flex-wrap:wrap}.hero .sub p{max-width:480px;font-size:1.15rem;font-weight:500;line-height:1.5;background:var(--w);border:3px solid var(--k);padding:16px 20px;box-shadow:6px 6px 0 var(--k)}
+.hero .sub div{display:flex;gap:16px;flex-wrap:wrap}
+.mq{background:var(--k);color:var(--y);overflow:hidden;white-space:nowrap;border-bottom:3px solid var(--k);padding:16px 0;font-family:Anton;font-size:2rem;text-transform:uppercase}.mq div{display:inline-block;animation:m 22s linear infinite}.mq:hover div{animation-play-state:paused}@keyframes m{to{transform:translateX(-50%)}}.mq em{font-style:normal;color:var(--w);margin:0 22px}
+.sec{padding:100px 3vw}.sec h2{font-family:Anton;font-weight:400;font-size:clamp(2.6rem,8vw,7rem);text-transform:uppercase;line-height:.92;margin-bottom:56px}.sec h2 mark{background:var(--y);padding:0 12px;border:3px solid var(--k)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.cd{border:3px solid var(--k);background:var(--w);padding:30px;box-shadow:10px 10px 0 var(--k);min-height:320px;display:flex;flex-direction:column;justify-content:space-between;transition:.25s cubic-bezier(.2,.9,.2,1);opacity:0;transform:translateY(50px) rotate(var(--rot,0deg))}
+.cd.in{opacity:1;transform:rotate(var(--rot,0deg))}.cd:hover{transform:translate(-6px,-6px) rotate(0);box-shadow:16px 16px 0 var(--k)}
+.cd:nth-child(1){--rot:-1.2deg;background:#e8f0ff}.cd:nth-child(2){--rot:1deg;background:#e7ffee}.cd:nth-child(3){--rot:-.8deg;background:#fff1d6}
+.cd h3{font-family:Anton;font-weight:400;font-size:2.6rem;text-transform:uppercase;line-height:1}.cd p{line-height:1.55;margin-top:14px;font-weight:500}.cd .n{font-family:Anton;font-size:5rem;line-height:1}
+.st{display:grid;grid-template-columns:repeat(3,1fr);border-block:3px solid var(--k);background:var(--bl);color:var(--w)}.st div{padding:50px 3vw;border-right:3px solid var(--k)}.st div:last-child{border:0}.st b{font-family:Anton;font-weight:400;font-size:clamp(3.6rem,9vw,8rem);line-height:1;display:block}
+.cta{background:var(--k);color:var(--w);padding:110px 3vw;text-align:center}.cta h2{font-family:Anton;font-weight:400;font-size:clamp(2.6rem,9vw,8.5rem);text-transform:uppercase;line-height:.92}.cta h2 em{font-style:normal;color:var(--y)}.cta .bt{margin-top:46px;background:var(--y);color:var(--k);box-shadow:6px 6px 0 var(--w)}.cta small{display:block;max-width:720px;margin:40px auto 0;color:#aaa;line-height:1.7;font-size:.76rem}
+@media(max-width:850px){.cards,.st{grid-template-columns:1fr}.st div{border-right:0;border-bottom:3px solid var(--k)}.top a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.hero h1 span,.cd{transform:none;opacity:1}}
+</style></head><body>
+<div class="top"><b>XAURIX<i>FX</i></b><div><a href="#">Mercados</a><a href="#">Academia</a><a href="#">Broker</a><a class="bt" href="#" style="margin-left:24px;padding:10px 18px;box-shadow:4px 4px 0 var(--y)">Entrar</a></div></div>
+<header class="hero"><canvas id="cv"></canvas>
+<h1><span style="--i:0">Entiende</span><span style="--i:1">los mercados</span></h1>
+<div class="sub"><p>Cotizaciones, noticias oficiales en español y cursos. Mueve el mouse: las velas reaccionan.</p><div><a class="bt" href="#">Explorar mercados →</a><a class="bt y" href="#">Ver cursos</a></div></div></header>
+<div class="mq"><div id="mq"></div></div>
+<section class="sec"><h2>Todo lo que <mark>necesitas</mark></h2>
+<div class="cards"><article class="cd"><div class="n">01</div><div><h3>Mercados</h3><p>Índices, divisas, materias primas y cripto con gráfico interactivo.</p></div></article>
+<article class="cd"><div class="n">02</div><div><h3>Noticias</h3><p>Fuentes oficiales traducidas al español, con enlace al original.</p></div></article>
+<article class="cd"><div class="n">03</div><div><h3>Academia</h3><p>Cursos descargables. Pago en USDT por red Ethereum. Algunos gratis.</p></div></article></div></section>
+<div class="st"><div><b data-n="40">0</b>Activos en el panel</div><div><b data-n="6">0</b>Widgets de mercado</div><div><b data-n="100">0</b>% en español</div></div>
+<section class="cta"><h2>Practica lo que <em>aprendes</em></h2><a class="bt" href="#">Conocer PU Prime ↗</a><small>Enlace de afiliado: XaurixFX podría recibir una comisión. Los CFD son productos complejos con alto riesgo de pérdida. Contenido informativo; no es asesoría de inversión. Cifras de esta demo ilustrativas.</small></section>
+<script>
+const $=s=>document.querySelector(s);
+const t=['Mercados','Noticias','Cursos','Comunidad','Criterio'];const r=t.map(w=>`${w}<em>✦</em>`).join('');$('#mq').innerHTML=(r+r+r+r);
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');const n=e.target.querySelector?.('[data-n]');io.unobserve(e.target)}}),{threshold:.25});document.querySelectorAll('.cd').forEach(e=>io.observe(e));
+const cio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const n=e.target,to=+n.dataset.n;let v=0;const f=()=>{v+=to/45;n.textContent=Math.min(Math.round(v),to);if(v<to)requestAnimationFrame(f)};f();cio.unobserve(n)}}),{threshold:.6});document.querySelectorAll('[data-n]').forEach(e=>cio.observe(e));
+// candles pushed by the cursor (spring physics)
+const cv=$('#cv'),x=cv.getContext('2d');let W,H,C=[],mx=-999,my=-999;
+function sz(){const d=devicePixelRatio;W=cv.width=cv.offsetWidth*d;H=cv.height=cv.offsetHeight*d;const w=46*d,g=14*d,N=Math.ceil(W/(w+g));let p=.4;C=Array.from({length:N},(_,i)=>{const o=p,c=Math.max(.1,Math.min(.75,o+(Math.random()-.5)*.2));p=c;return{x:i*(w+g),w,o,c,h:Math.max(o,c)+Math.random()*.08,l:Math.min(o,c)-Math.random()*.08,dy:0,v:0}})}sz();addEventListener('resize',sz);
+cv.parentElement.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();mx=(e.clientX-r.left)*devicePixelRatio;my=(e.clientY-r.top)*devicePixelRatio});cv.parentElement.addEventListener('pointerleave',()=>{mx=my=-999});
+function f(){const d=devicePixelRatio;x.clearRect(0,0,W,H);
+ C.forEach(c=>{const cx=c.x+c.w/2,dist=Math.abs(cx-mx),push=Math.max(0,1-dist/(260*d));c.v+=((-push*H*.28)-c.dy)*.12;c.v*=.78;c.dy+=c.v;
+  const Y=v=>H*.96-v*H*.85+c.dy,up=c.c>=c.o;x.strokeStyle='#0b0b0b';x.lineWidth=4*d;x.beginPath();x.moveTo(cx,Y(c.h));x.lineTo(cx,Y(c.l));x.stroke();
+  x.fillStyle=up?'#17c27b':'#ff4d4d';const top=Math.min(Y(c.o),Y(c.c)),h=Math.max(6*d,Math.abs(Y(c.o)-Y(c.c)));x.fillRect(c.x,top,c.w,h);x.strokeRect(c.x,top,c.w,h)});
+ requestAnimationFrame(f)}f();
+</script></body></html>

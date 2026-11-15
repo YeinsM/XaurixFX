@@ -1,0 +1,70 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo 1 · Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06090a;--g:#35e0a1;--r:#ff5d6c;--a:#d9b46b;--t:#cfe9df;--m:#6b8a80;--b:#17302a}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--t);font-family:'JetBrains Mono',monospace;overflow-x:hidden}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.55}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 30%,var(--bg) 95%)}
+main,nav{position:relative;z-index:2}.w{width:min(1200px,92%);margin:auto}
+nav{display:flex;justify-content:space-between;padding:22px 4%;border-bottom:1px solid var(--b);background:rgba(6,9,10,.6);backdrop-filter:blur(6px);position:sticky;top:0;z-index:9}
+nav b{color:var(--g)}nav a{color:var(--m);margin-left:26px;text-decoration:none;font-size:.85rem}nav a:hover{color:var(--g)}
+.hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center}
+.pr{color:var(--g)}h1{font-size:clamp(2rem,6vw,5rem);font-weight:800;line-height:1.08;letter-spacing:-.04em;margin:18px 0}
+.cur{display:inline-block;width:.55em;height:1em;background:var(--g);vertical-align:-.12em;animation:bl 1s steps(1) infinite}@keyframes bl{50%{opacity:0}}
+.glitch{position:relative}.glitch:hover{animation:gl .35s steps(2) 2}
+@keyframes gl{25%{transform:translate(-3px,1px);text-shadow:3px 0 var(--r),-3px 0 var(--g)}75%{transform:translate(3px,-1px);text-shadow:-3px 0 var(--r),3px 0 var(--g)}}
+p.l{color:var(--m);max-width:620px;line-height:1.75}
+.btn{display:inline-block;margin:30px 14px 0 0;padding:14px 22px;border:1px solid var(--g);color:var(--g);text-decoration:none;font-weight:700;transition:.25s;position:relative}
+.btn:hover{background:var(--g);color:#001;box-shadow:0 0 30px rgba(53,224,161,.5)}
+.log{margin-top:50px;font-size:.8rem;color:var(--m);line-height:2;min-height:7em}.log .ok{color:var(--g)}
+.tick{border-block:1px solid var(--b);overflow:hidden;white-space:nowrap;padding:14px 0;background:rgba(6,9,10,.7);position:relative;z-index:2}.tick div{display:inline-flex;gap:46px;animation:s 30s linear infinite}@keyframes s{to{transform:translateX(-50%)}}
+.up{color:var(--g)}.dn{color:var(--r)}
+section{padding:120px 0}h2{font-size:clamp(1.6rem,3.6vw,3rem);letter-spacing:-.03em;margin-bottom:46px}h2 span{color:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.win{border:1px solid var(--b);background:rgba(10,16,15,.82);backdrop-filter:blur(4px);opacity:0;transform:translateY(40px);transition:.8s cubic-bezier(.2,.8,.2,1)}.win.in{opacity:1;transform:none}.win:hover{border-color:var(--g);box-shadow:0 0 40px -10px var(--g)}
+.win header{display:flex;gap:7px;padding:11px 14px;border-bottom:1px solid var(--b);align-items:center;font-size:.72rem;color:var(--m)}.win header i{width:9px;height:9px;border-radius:50%;background:var(--b)}.win header i:first-child{background:var(--r)}.win header i:nth-child(2){background:var(--a)}.win header i:nth-child(3){background:var(--g)}
+.win div.bd{padding:26px}.win h3{font-size:1.2rem;margin-bottom:10px}.win p{color:var(--m);font-size:.88rem;line-height:1.7}
+.big{font-size:clamp(2.4rem,5vw,4rem);font-weight:800;color:var(--g);letter-spacing:-.04em}
+.note{color:var(--m);font-size:.72rem;margin-top:40px;line-height:1.7}
+@media(max-width:800px){.grid{grid-template-columns:1fr}nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.win{opacity:1;transform:none}}
+</style></head><body>
+<canvas id="c"></canvas><div class="vig"></div>
+<nav><b>XAURIX_FX ▌</b><div><a href="#">mercados</a><a href="#">academia</a><a href="#">broker</a><a href="#">login</a></div></nav>
+<main>
+<div class="w hero"><div class="pr">xaurix@mercados:~$</div>
+<h1 class="glitch"><span id="ty"></span><span class="cur"></span></h1>
+<p class="l">Cotizaciones, noticias oficiales traducidas y cursos. Todo en una terminal que no duerme. Formación para decidir con criterio.</p>
+<div><a class="btn" href="#m">./explorar_mercados</a><a class="btn" style="border-color:var(--m);color:var(--m)" href="#">./ver_cursos</a></div>
+<div class="log" id="log"></div></div>
+<div class="tick"><div id="tk"></div></div>
+<section id="m"><div class="w"><h2><span>&gt;</span> módulos_cargados</h2>
+<div class="grid">
+<div class="win"><header><i></i><i></i><i></i> panel.sh</header><div class="bd"><div class="big" data-n="40">0</div><h3>Activos en vivo</h3><p>Índices, divisas, materias primas y cripto con gráfico interactivo.</p></div></div>
+<div class="win"><header><i></i><i></i><i></i> noticias.sh</header><div class="bd"><div class="big">ES</div><h3>Noticias traducidas</h3><p>Fuentes oficiales resumidas en español con enlace al original.</p></div></div>
+<div class="win"><header><i></i><i></i><i></i> academia.sh</header><div class="bd"><div class="big">USDT</div><h3>Cursos descargables</h3><p>Pago por red Ethereum. Lo comprado queda en tu cuenta.</p></div></div>
+</div><p class="note">// Demo ilustrativa: cotizaciones y cifras son inventadas. Los CFD implican alto riesgo de pérdida; contenido informativo, no asesoría.</p></div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+// typewriter
+const txt='Entiende los mercados.\nAprende con criterio.';let i=0;const ty=$('#ty');(function t(){ty.innerHTML=txt.slice(0,i).replace('\n','<br>');if(i++<txt.length)setTimeout(t,55)})();
+// boot log
+const L=['[ok] cargando índices…','[ok] sincronizando noticias oficiales…','[ok] academia disponible','[..] esperando tu decisión'];const lg=$('#log');L.forEach((l,k)=>setTimeout(()=>{lg.innerHTML+=`<div>${l.replace('[ok]','<span class=ok>[ok]</span>')}</div>`},1400+k*500));
+// ticker
+const it=[['EURUSD','1.0842','dn'],['XAU','2718','up'],['BTC','91240','up'],['SPX','5832','up'],['WTI','68.4','dn'],['USDJPY','154.2','up']];const r=it.map(([n,p,c])=>`<span>${n} <b class="${c}">${p} ${c=='up'?'▲':'▼'}</b></span>`).join('');$('#tk').innerHTML=r+r+r+r;
+// reveal + count
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');const n=e.target.querySelector('[data-n]');if(n){let v=0,to=+n.dataset.n;const f=()=>{v+=to/40;n.textContent=Math.min(Math.round(v),to)+'+';if(v<to)requestAnimationFrame(f)};f()}io.unobserve(e.target)}}),{threshold:.3});document.querySelectorAll('.win').forEach(w=>io.observe(w));
+// live candles scrolling left
+const cv=$('#c'),x=cv.getContext('2d');let W,H,cs=[],cw=14,gap=5,price=100;
+function size(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio}size();addEventListener('resize',size);
+function mk(){const o=price,c=o+(Math.random()-.48)*7,h=Math.max(o,c)+Math.random()*4,l=Math.min(o,c)-Math.random()*4;price=c;return{o,c,h,l}}
+for(let k=0;k<200;k++)cs.push(mk());let off=0;
+function draw(){const d=devicePixelRatio,step=(cw+gap)*d;x.clearRect(0,0,W,H);
+ x.strokeStyle='rgba(53,224,161,.06)';x.lineWidth=1;for(let y=0;y<H;y+=80*d){x.beginPath();x.moveTo(0,y);x.lineTo(W,y);x.stroke()}
+ const n=Math.ceil(W/step)+2,vis=cs.slice(-n),mn=Math.min(...vis.map(c=>c.l)),mx=Math.max(...vis.map(c=>c.h)),sc=(H*.55)/(mx-mn),y0=H*.2;
+ vis.forEach((c,k)=>{const px=W-(vis.length-k)*step+off,Y=v=>y0+(mx-v)*sc,up=c.c>=c.o;x.strokeStyle=x.fillStyle=up?'#35e0a1':'#ff5d6c';x.lineWidth=2*d;x.beginPath();x.moveTo(px+cw*d/2,Y(c.h));x.lineTo(px+cw*d/2,Y(c.l));x.stroke();const t=Math.min(Y(c.o),Y(c.c));x.fillRect(px,t,cw*d,Math.max(3*d,Math.abs(Y(c.o)-Y(c.c))))});
+ off+=.35*d;if(off>=step){off-=step;cs.push(mk());if(cs.length>600)cs.shift()}requestAnimationFrame(draw)}
+draw();
+</script></body></html>

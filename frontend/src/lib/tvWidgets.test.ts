@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap, tickerTape, tvScriptUrl } from './tvWidgets';
+import { advancedChart, economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap, tickerTape, tvScriptUrl } from './tvWidgets';
 
 const widgets = { tickerTape, economicCalendar, marketOverview, newsFeed, screenerGainers, stockHeatmap };
 
@@ -33,5 +33,14 @@ describe('app palette', () => {
       plotLineColorFalling: '#e5675c',
     });
     expect(String(marketOverview.config.symbolActiveColor)).toContain('217, 180, 107');
+  });
+});
+
+describe('advanced chart', () => {
+  it('is a large dark Spanish chart that lets visitors change the symbol', () => {
+    expect(advancedChart.script).toBe('advanced-chart');
+    expect(advancedChart.height).toBeGreaterThanOrEqual(600);
+    expect(advancedChart.config).toMatchObject({ theme: 'dark', locale: 'es', allow_symbol_change: true, width: '100%', backgroundColor: '#141619' });
+    expect(advancedChart.config.height).toBe(advancedChart.height);
   });
 });

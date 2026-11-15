@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react';
 import type { Page, User } from '../types';
 
 const links: { page: Page; label: string }[] = [
+  { page: 'inicio', label: 'Inicio' },
   { page: 'home', label: 'Mercados' },
   { page: 'news', label: 'Noticias' },
   { page: 'academy', label: 'Academia' },
@@ -14,7 +15,7 @@ type Props = { page: Page; user: User | null; onNavigate: (page: Page) => void; 
 export function SiteHeader({ page, user, onNavigate, onLogin, onLogout }: Props) {
   return (
     <header className="mk-header">
-      <a className="brand" href="#home" onClick={e => { e.preventDefault(); onNavigate('home'); }} aria-label="Xaurix FX, inicio"><span className="brand-mark">X</span><span>XAURIX <small>FX</small></span></a>
+      <a className="brand" href="#inicio" onClick={e => { e.preventDefault(); onNavigate('inicio'); }} aria-label="Xaurix FX, inicio"><span className="brand-mark">X</span><span>XAURIX <small>FX</small></span></a>
       <nav aria-label="Principal">
         {links.map(link => <a key={link.page} href={`#${link.page}`} aria-current={page === link.page ? 'page' : undefined} className={page === link.page ? 'active' : ''} onClick={e => { e.preventDefault(); onNavigate(link.page); }}>{link.label}</a>)}
       </nav>

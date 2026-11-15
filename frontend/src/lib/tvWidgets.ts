@@ -57,3 +57,13 @@ export const screenerGainers: TvWidget = {
   script: 'screener', height: 520,
   config: { ...base, market: 'america', showToolbar: true, defaultColumn: 'overview', defaultScreen: 'top_gainers', width: '100%', height: 520 },
 };
+
+/** Large interactive chart: drawing tools, indicators and symbol search come with the widget. */
+export const advancedChart: TvWidget = {
+  script: 'advanced-chart', height: 680,
+  config: {
+    symbol: 'FOREXCOM:SPXUSD', interval: 'D', timezone: 'America/Santo_Domingo', theme: 'dark', style: '1', locale: 'es',
+    backgroundColor: palette.background, gridColor: palette.grid, allow_symbol_change: true, hide_side_toolbar: false,
+    save_image: true, calendar: false, support_host: 'https://www.tradingview.com', width: '100%', height: 680,
+  },
+};
