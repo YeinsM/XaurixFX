@@ -20,5 +20,10 @@ La referencia de Latim Forex presenta un artículo propio con titular, fecha, au
 - `#news` es una sección separada con filtros, una portada editorial y una vista de cada comunicado. El texto completo se abre en la fuente oficial.
 - El widget de TradingView aporta titulares de más mercados. No se extraen sus noticias para una base de datos propia.
 
+## Breves propios en español
+- Para la decisión monetaria más reciente de la Fed y del BCE, el servidor consulta el comunicado original y extrae tasas solo si reconoce una estructura validada. Genera titular, contexto y tabla de cifras en español, con fecha y enlace a la fuente.
+- Si falta una cifra o cambia la redacción del documento, no crea un informe: conserva el titular original y enlaza la fuente. No traduce automáticamente el resto de las noticias ni inventa consecuencias de mercado.
+- La prueba de integración local del 2026-11-15 obtuvo dos informes: Fed 3,75 %–4,00 % y BCE 2,50 % / 2,65 % / 2,90 %.
+
 ## Para artículos completos como la referencia
 Se necesita una fuente de contenido con derechos de republicación o una redacción propia que genere informes desde datos con licencia y controles de calidad. Prioridad recomendada: negociar sindicación comercial con FXStreet para español. Si se opta por informes automáticos propios, registrar fuente, hora, unidades, método de cálculo, desfase del dato y revisión de cifras antes de publicar; no presentar un resumen generado como noticia verificada sin ese control.
