@@ -1,86 +1,28 @@
 import { createHash } from 'node:crypto';
 import { XMLParser } from 'fast-xml-parser';
+import { load } from 'cheerio';
+import { translateNews } from './newsTranslation.js';
 
 export type NewsItem = {
-  id: string;
-  title: string;
-  excerpt: string;
+  id: string; title: string; excerpt: string; titleEs?: string; excerptEs?: string;
   source: 'Reserva Federal' | 'Banco Central Europeo';
   category: 'Política monetaria' | 'Economía europea';
-  publishedAt: string;
-  url: string;
-  briefEs?: SpanishBrief;
-};
-
-export type SpanishBrief = {
-  title: string;
-  lead: string;
-  facts: { label: string; value: string }[];
-  paragraphs: string[];
+  publishedAt: string; url: string;
 };
 
 const feeds = [
   { url: 'https://www.federalreserve.gov/feeds/press_monetary.xml', host: 'federalreserve.gov', source: 'Reserva Federal', category: 'Política monetaria' },
   { url: 'https://www.ecb.europa.eu/rss/press.html', host: 'ecb.europa.eu', source: 'Banco Central Europeo', category: 'Economía europea' },
 ] as const;
-
 const parser = new XMLParser({ ignoreAttributes: false, trimValues: true, processEntities: true });
 const asText = (value: unknown): string => typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
-const codePoint = (code: number, original: string) => Number.isInteger(code) && code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : original;
-const clean = (value: unknown): string => asText(value)
-  .replace(/<[^>]*>/g, ' ')
-  .replace(/&#(\d+);/g, (match, code: string) => codePoint(Number(code), match))
-  .replace(/&#x([\da-f]+);/gi, (match, code: string) => codePoint(parseInt(code, 16), match))
-  .replace(/&(amp|quot|apos|lt|gt);/g, (_match, name: string) => ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>' })[name as 'amp'] ?? '')
-  .replace(/\s+/g, ' ').trim();
+const clean = (value: unknown): string => asText(value).replace(/<[^>]*>/g, ' ').replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n))).replace(/&#x([\da-f]+);/gi, (_, n: string) => String.fromCodePoint(parseInt(n, 16))).replace(/&(amp|quot|apos|lt|gt|#39);/g, (_, n: string) => ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', '#39': "'" })[n as 'amp'] ?? '').replace(/\s+/g, ' ').trim();
 const shorten = (value: string, limit: number) => value.length > limit ? `${value.slice(0, limit).trimEnd()}…` : value;
-const htmlText = (html: string) => clean(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' '));
-const percent = (value: string): string | null => {
-  const match = /^(\d+)(?:-(\d+)\/(\d+))?(?:\.(\d+))?$/.exec(value.trim());
-  if (!match) return null;
-  const amount = Number(match[1]) + (match[2] && match[3] ? Number(match[2]) / Number(match[3]) : 0) + (match[4] ? Number(`0.${match[4]}`) : 0);
-  return Number.isFinite(amount) ? `${amount.toFixed(2).replace('.', ',')} %` : null;
+const passageText = (value: string, limit: number) => {
+  if (value.length <= limit) return value;
+  const complete = value.slice(0, limit + 1).match(/^.{150,}[.!?](?=\s|$)/s)?.[0];
+  return complete || shorten(value, limit);
 };
-
-/** Only known, verifiable monetary-policy statements produce Spanish reports. */
-export function makeSpanishBrief(item: NewsItem, html: string): SpanishBrief | null {
-  const text = htmlText(html);
-  if (item.source === 'Reserva Federal' && item.title === 'Federal Reserve issues FOMC statement') {
-    const match = /The Committee decided to (maintain|raise|lower) the target range for the federal funds rate at (\d+(?:-\d+\/\d+|\.\d+)?) to (\d+(?:-\d+\/\d+|\.\d+)?) percent/i.exec(text);
-    if (!match) return null;
-    const low = percent(match[2] ?? '');
-    const high = percent(match[3] ?? '');
-    if (!low || !high) return null;
-    const verb = { maintain: 'mantiene', raise: 'eleva', lower: 'reduce' }[match[1]?.toLowerCase() as 'maintain'];
-    if (!verb) return null;
-    return {
-      title: `La Fed ${verb} el rango de tipos en ${low}–${high}`,
-      lead: `El Comité Federal de Mercado Abierto ${verb} el rango objetivo de la tasa de fondos federales entre ${low} y ${high}, según su comunicado oficial.`,
-      facts: [{ label: 'Límite inferior', value: low }, { label: 'Límite superior', value: high }],
-      paragraphs: [
-        'La tasa de fondos federales es una referencia central de la política monetaria de Estados Unidos. El rango procede directamente del comunicado de la Reserva Federal.',
-        'Este informe describe la decisión publicada. No interpreta la reacción de los mercados ni anticipa decisiones futuras.',
-      ],
-    };
-  }
-  if (item.source === 'Banco Central Europeo' && item.title === 'Monetary policy decisions') {
-    const match = /The interest rates on the deposit facility, the main refinancing operations and the marginal lending facility will remain unchanged at (\d+(?:\.\d+)?)%, (\d+(?:\.\d+)?)% and (\d+(?:\.\d+)?)% respectively/i.exec(text);
-    if (!match) return null;
-    const rates = [match[1], match[2], match[3]].map(value => percent(value ?? ''));
-    if (rates.some(value => !value)) return null;
-    const [deposit, refinancing, marginal] = rates as [string, string, string];
-    return {
-      title: `El BCE mantiene el tipo de depósito en ${deposit}`,
-      lead: `El Consejo de Gobierno del Banco Central Europeo decidió mantener sin cambios sus tres tipos oficiales, según su comunicado de política monetaria.`,
-      facts: [{ label: 'Facilidad de depósito', value: deposit }, { label: 'Operaciones principales', value: refinancing }, { label: 'Facilidad marginal', value: marginal }],
-      paragraphs: [
-        `La facilidad de depósito se mantiene en ${deposit}; las operaciones principales de financiación, en ${refinancing}; y la facilidad marginal de crédito, en ${marginal}.`,
-        'Las cifras se extraen del comunicado oficial. Este informe no atribuye efectos sobre precios de mercado ni adelanta decisiones del BCE.',
-      ],
-    };
-  }
-  return null;
-}
 
 export function parseNewsFeed(xml: string, feed: typeof feeds[number]): NewsItem[] {
   const parsed = parser.parse(xml) as { rss?: { channel?: { item?: unknown } } };
@@ -94,11 +36,24 @@ export function parseNewsFeed(xml: string, feed: typeof feeds[number]): NewsItem
     let url: URL;
     try { url = new URL(asText(item.link)); } catch { return []; }
     if (!title || !Number.isFinite(date.getTime()) || url.protocol !== 'https:' || (url.hostname !== feed.host && !url.hostname.endsWith(`.${feed.host}`))) return [];
-    return [{ id: createHash('sha256').update(url.href).digest('hex').slice(0, 16), title, excerpt, source: feed.source, category: feed.category, publishedAt: date.toISOString(), url: url.href }];
+    return [{ id: createHash('sha256').update(url.href).digest('hex').slice(0, 16), title, excerpt: excerpt === title ? '' : excerpt, source: feed.source, category: feed.category, publishedAt: date.toISOString(), url: url.href }];
   });
 }
 
-export function createNewsService(fetchFeed: typeof fetch = fetch) {
+/** Extract a short passage from the official article, without mirroring it. */
+export function extractArticleExcerpt(html: string, source: NewsItem['source']): string {
+  const $ = load(html);
+  $('script, style, nav, footer, header, aside, form').remove();
+  const root = source === 'Banco Central Europeo'
+    ? $('.ecb-pressContent, .ecb-content, main, article').first()
+    : $('#article, .article, #content, main, article').first();
+  const paragraphs = (root.length ? root : $('body')).find('p').map((_, el) => clean($(el).text()).replace(/\[\d+\]/g, '')).get();
+  const eligible = paragraphs.filter(p => p.length >= 80 && p.length <= 1800 && !/^(official websites|our monetary policy strategy|insights into our work|in-depth studies)/i.test(p));
+  const passage = eligible.find(p => p.length >= 140) || eligible[0];
+  return passage ? passageText(passage, 340) : '';
+}
+
+export function createNewsService(fetchFeed: typeof fetch = fetch, translate: typeof translateNews = translateNews) {
   let cache: { items: NewsItem[]; updatedAt: string; expires: number } | null = null;
   let inFlight: Promise<{ items: NewsItem[]; updatedAt: string }> | null = null;
   const refresh = async () => {
@@ -115,20 +70,25 @@ export function createNewsService(fetchFeed: typeof fetch = fetch) {
       if (cache) return { items: cache.items, updatedAt: cache.updatedAt };
       throw new Error('Las fuentes de noticias no están disponibles.');
     }
-    const deduped = [...new Map(items.map(item => [item.url, item])).values()]
-      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 30);
-    const reportCandidates = [
-      deduped.find(item => item.source === 'Reserva Federal' && item.title === 'Federal Reserve issues FOMC statement'),
-      deduped.find(item => item.source === 'Banco Central Europeo' && item.title === 'Monetary policy decisions'),
-    ].filter((item): item is NewsItem => Boolean(item));
-    await Promise.allSettled(reportCandidates.map(async item => {
-      const response = await fetchFeed(item.url, { signal: AbortSignal.timeout(8000), headers: { Accept: 'text/html' } });
-      if (!response.ok || Number(response.headers.get('content-length') ?? 0) > 500_000) return;
-      const html = await response.text();
-      if (html.length > 500_000) return;
-      const brief = makeSpanishBrief(item, html);
-      if (brief) item.briefEs = brief;
-    }));
+    const deduped = [...new Map(items.map(item => [item.url, item])).values()].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 30);
+    const first = deduped.slice(0, 12);
+    for (let offset = 0; offset < first.length; offset += 4) {
+      await Promise.allSettled(first.slice(offset, offset + 4).map(async item => {
+        const response = await fetchFeed(item.url, { signal: AbortSignal.timeout(6500), headers: { Accept: 'text/html' } });
+        if (!response.ok || Number(response.headers.get('content-length') ?? 0) > 750_000) return;
+        const html = await response.text();
+        if (html.length > 750_000) return;
+        item.excerpt = extractArticleExcerpt(html, item.source) || item.excerpt;
+      }));
+    }
+    try {
+      const texts = deduped.flatMap(item => [item.title, item.excerpt]);
+      const translated = await translate(texts);
+      if (translated.length === texts.length) deduped.forEach((item, index) => {
+        item.titleEs = translated[index * 2] || undefined;
+        item.excerptEs = translated[index * 2 + 1] || undefined;
+      });
+    } catch (error) { console.warn('Traducción de noticias no disponible:', error); }
     const updatedAt = new Date().toISOString();
     cache = { items: deduped, updatedAt, expires: Date.now() + 15 * 60_000 };
     return { items: deduped, updatedAt };

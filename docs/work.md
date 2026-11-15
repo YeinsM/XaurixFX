@@ -14,7 +14,7 @@ duplicarlo. Estados: definido, en curso, pendiente de decisión, verificado.
 | APP-07 | Home de mercados con widgets de TradingView (cinta, panorama, calendario, noticias, ganadores, mapa de calor) | en curso | frontend compila; 7 pruebas; los datos propios (CoinGecko/EODHD/Massive) se retiraron a petición del usuario y siguen en el commit 857b672; falta confirmar licencia comercial de TradingView |
 | APP-06 | React/Tailwind con mejora de maqueta | en curso | landing de broker visualizada en escritorio y móvil |
 | APP-08 | Landing de broker PU Prime: beneficios, fuentes, referido y riesgos | verificado | build frontend; 12 pruebas; revisión visual escritorio y móvil 2026-11-15 |
-| APP-09 | Sección Noticias con RSS oficiales y feed de mercados | verificado | local: API Fed/BCE: 30 comunicados y 2 informes propios en español con tasas verificadas; build frontend/backend; 6 pruebas backend; revisión visual escritorio/móvil |
+| APP-09 | Sección Noticias con RSS oficiales, traducción y feed de mercados | verificado | API Fed/BCE: 30 comunicados; títulos y extractos automáticos en español con acceso al original; build frontend/backend; 6 pruebas backend |
 
 ## Handoff activo
 Landing PU Prime y sección de noticias implementados localmente. Ver [fuentes de noticias](news-sources.md). Pendientes del producto: cursos/pago ERC-20 y licencia comercial de widgets antes de publicar.

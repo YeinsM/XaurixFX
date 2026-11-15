@@ -20,10 +20,15 @@ La referencia de Latim Forex presenta un artículo propio con titular, fecha, au
 - `#news` es una sección separada con filtros, una portada editorial y una vista de cada comunicado. El texto completo se abre en la fuente oficial.
 - El widget de TradingView aporta titulares de más mercados. No se extraen sus noticias para una base de datos propia.
 
-## Breves propios en español
-- Para la decisión monetaria más reciente de la Fed y del BCE, el servidor consulta el comunicado original y extrae tasas solo si reconoce una estructura validada. Genera titular, contexto y tabla de cifras en español, con fecha y enlace a la fuente.
-- Si falta una cifra o cambia la redacción del documento, no crea un informe: conserva el titular original y enlaza la fuente. No traduce automáticamente el resto de las noticias ni inventa consecuencias de mercado.
-- La prueba de integración local del 2026-11-15 obtuvo dos informes: Fed 3,75 %–4,00 % y BCE 2,50 % / 2,65 % / 2,90 %.
+## Traducción y extractos en español
+- Cada titular de la Fed y el BCE se traduce al español mediante un modelo local de Argos Translate. La página permite alternar entre español y el texto original.
+- Para los doce comunicados más recientes, el servidor intenta extraer un pasaje corto del cuerpo del documento oficial; el resto usa la descripción RSS cuando existe. El extracto y su traducción se muestran en la tarjeta y en la vista del comunicado. La fuente original queda enlazada.
+- Si falla la traducción se muestra claramente el texto original. Las traducciones son automáticas y no sustituyen la publicación oficial; las cifras y términos deben verificarse allí.
+
+### Preparar el traductor local
+1. Crear un entorno Python en `.local/translate-venv` e instalar `argostranslate==1.11.0`.
+2. Instalar el modelo `translate-en_es` con `argospm update` y `argospm install translate-en_es` usando el Python del entorno. La configuración `ARGOS_CHUNK_TYPE=MINISBD` se aplica al ejecutar.
+3. En despliegues, establecer `NEWS_TRANSLATOR_PYTHON` con la ruta absoluta de un Python con Argos y el modelo instalado. El servidor no descarga modelos durante las solicitudes.
 
 ## Para artículos completos como la referencia
 Se necesita una fuente de contenido con derechos de republicación o una redacción propia que genere informes desde datos con licencia y controles de calidad. Prioridad recomendada: negociar sindicación comercial con FXStreet para español. Si se opta por informes automáticos propios, registrar fuente, hora, unidades, método de cálculo, desfase del dato y revisión de cifras antes de publicar; no presentar un resumen generado como noticia verificada sin ese control.
