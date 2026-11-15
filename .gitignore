@@ -10,3 +10,4 @@ test-results/
 .local/
 .DS_Store
 *.tsbuildinfo
+.claude/settings.local.json

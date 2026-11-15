@@ -36,9 +36,16 @@ recibir un subagente. Estos Markdown no registran agentes nativos automáticamen
    Los demás devuelven las entradas propuestas. Verificar cambios ajenos antes de integrar.
 
 ## Contexto y recursos
-Conservar el modelo y esfuerzo efectivos de la sesión salvo autorización/configuración
-explícita; un archivo Markdown no cambia parámetros del runtime. No degradar revisión
-monetaria para cumplir una cuota. Evitar respuestas, búsquedas y pruebas repetidas.
+Modelos (autorizado por el usuario el 2026-11-15; subagentes nativos en
+`.claude/agents/`, sesión principal en `.claude/settings.json`):
+- **Opus** (sesión principal): orquesta, decide, integra y resuelve lo muy complejo.
+- **Sonnet**: `implementador` (código acotado que Haiku no haría con precisión) y
+  `revisor` (revisión de código/diff; obligatorio en dinero y aislamiento).
+- **Haiku**: `explorador` (búsquedas), `validador` (build/pruebas), `rutinario`
+  (cambios mecánicos ya decididos). Nunca para dinero, permisos, esquema o contratos.
+No delegar una orden corta: delegar también cuesta. No degradar revisión monetaria
+para cumplir una cuota. Evitar respuestas, búsquedas y pruebas repetidas. Lecturas
+bloqueadas (node_modules, dist, lockfile, .env, imágenes) vía permissions.deny.
 Tras un fallo, usar su evidencia para el siguiente intento; dos intentos iguales sin
 información nueva obligan a cambiar diagnóstico o explicar el bloqueo.
 Al relevar una tarea larga, guardar en docs/work.md solo estado, decisión, archivos,

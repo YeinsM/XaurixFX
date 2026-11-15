@@ -1,0 +1,21 @@
+{
+  "model": "opus",
+  "permissions": {
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./**/node_modules/**)",
+      "Read(./**/dist/**)",
+      "Read(./**/coverage/**)",
+      "Read(./playwright-report/**)",
+      "Read(./test-results/**)",
+      "Read(./package-lock.json)",
+      "Read(./.local/**)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.png)",
+      "Read(./**/*.jpg)",
+      "Read(./**/*.jpeg)",
+      "Read(./**/*.webp)"
+    ]
+  }
+}
