@@ -4,7 +4,7 @@ import { createPool } from './db.js';
 
 const config = readConfig();
 const pool = createPool(config.databaseUrl);
-const app = buildApp({ pool, origin: config.origin, secureCookies: config.secureCookies, logger: true });
+const app = buildApp({ pool, origin: config.origin, secureCookies: config.secureCookies, logger: true, market: config.market });
 pool.on('error', () => app.log.error('Database pool connection failed'));
 app.addHook('onClose', async () => { await pool.end(); });
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {

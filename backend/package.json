@@ -9,8 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "db:migrate": "tsx src/migrate.ts",
-    "test": "tsx --test test/security.test.ts",
-    "test:integration": "node --env-file-if-exists=.env --import tsx --test test/integration.test.ts"
+    "test": "tsx --test test/security.test.ts test/market-schedule.test.ts test/market-providers.test.ts",
+    "test:integration": "node --env-file-if-exists=.env --import tsx --test test/integration.test.ts test/market.integration.test.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

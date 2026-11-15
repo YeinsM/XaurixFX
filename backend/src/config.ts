@@ -8,5 +8,16 @@ export function readConfig() {
   if (new URL(origin).origin !== origin) throw new Error('FRONTEND_ORIGIN must be an exact origin without a trailing slash.');
   const port = Number(process.env.PORT ?? '4000');
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be between 1 and 65535.');
-  return { databaseUrl, origin, port, host: process.env.HOST ?? '127.0.0.1', secureCookies: process.env.NODE_ENV === 'production' };
+  const massiveBaseUrl = process.env.MASSIVE_BASE_URL ?? 'https://api.massive.com';
+  if (new URL(massiveBaseUrl).protocol !== 'https:') throw new Error('MASSIVE_BASE_URL must use https.');
+  const market = {
+    keys: {
+      coingecko: process.env.COINGECKO_API_KEY || undefined,
+      eodhd: process.env.EODHD_API_TOKEN || undefined,
+      massive: process.env.MASSIVE_API_KEY || undefined,
+      massiveBaseUrl,
+    },
+    cronSecret: process.env.CRON_SECRET || undefined,
+  };
+  return { market, databaseUrl, origin, port, host: process.env.HOST ?? '127.0.0.1', secureCookies: process.env.NODE_ENV === 'production' };
 }

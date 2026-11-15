@@ -4,4 +4,4 @@ export type Dashboard = { mode: 'demo' | 'live'; user: User; account: { id: stri
 export type Course = { id: string; title: string; category: string; level: string; duration: string; lessons: number; description: string; body: string[]; accent: string };
 export type Analysis = { id: string; title: string; category: string; date: string; summary: string; body: string[] };
 export type Content = { courses: Course[]; analyses: Analysis[] };
-export type Page = 'overview' | 'investment' | 'movements' | 'academy' | 'analysis' | 'community' | 'settings';
+export type Page = 'home' | 'overview' | 'investment' | 'movements' | 'academy' | 'analysis' | 'community' | 'settings';

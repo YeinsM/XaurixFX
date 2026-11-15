@@ -30,3 +30,17 @@
 No interpretar estas preguntas como requisitos ya aprobados. El coordinador solicita
 cada decisión cuando haga falta; no exige resolverlas todas para avanzar documentación.
 D11 admite propuesta técnica razonada; decisiones de dinero requieren respuesta de negocio.
+
+## Cambio de enfoque — 2026-11-15 (confirmado por el usuario)
+Landing de la empresa XaurixFX. Se descarta PAMM, depósitos a plataforma, saldos y retiros;
+D02–D08 dejan de aplicar. Producto: login; catálogo de cursos (imágenes de presentación,
+precio en USDT, actualizar/eliminar/recargar, marcar gratuitos); pago en USDT por Ethereum
+(ERC-20) a una billetera: el usuario envía el hash, el sistema lo verifica y habilita la
+descarga; lo comprado no vuelve a aparecer como compra pendiente, pero puede recomprarse.
+Home: blog de noticias de todos los mercados, estilo es.investing.com/markets, con activos
+configurables por usuario. Noticias: RSS externos + editorial propia. Datos de mercado: demo con
+CoinGecko, EODHD y Massive (planes gratuitos); llamadas diarias repartidas en turnos sobre 24 h
+(fin de día tras el cierre) y última cotización guardada en PostgreSQL.
+Pendientes: dirección de billetera, confirmaciones de bloque (propuesta: 12), licencia de
+redistribución de datos antes de publicar (los planes gratuitos son de uso personal),
+almacenamiento de archivos para Vercel (propuesta: Cloudflare R2).
