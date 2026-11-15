@@ -46,3 +46,5 @@ redistribución de datos antes de publicar (los planes gratuitos son de uso pers
 almacenamiento de archivos para Vercel (propuesta: Cloudflare R2).
 
 Actualización 2026-11-15: se eliminaron el panel PAMM, la demo, los análisis de ejemplo y la caché de datos propios de mercado (CoinGecko/EODHD/Massive); el home usa solo widgets de TradingView. El código eliminado está en el commit 857b672.
+
+Actualización 2026-11-15: se añadió una sección Noticias independiente. Los comunicados oficiales de la Fed y del BCE se consultan automáticamente por RSS; el flujo general de mercados sigue en TradingView. Los artículos completos de terceros requieren licencia o redacción propia. Ver docs/news-sources.md.

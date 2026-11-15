@@ -8,6 +8,7 @@ import { hashPassword, verifyPassword } from './security.js';
 import { createSession, findUserByEmail, getSessionUser, registerUser, revokeSession, SESSION_SECONDS, updateProfile, type User } from './repository.js';
 import { emptyQuery, loginBody, profileBody, registerBody } from './schemas.js';
 import { content } from './content.js';
+import { createNewsService } from './news.js';
 
 class HttpError extends Error {
   constructor(public statusCode: number, message: string) { super(message); }
@@ -24,6 +25,7 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
   const cookieName = secureCookies ? '__Host-xaurix_session' : 'xaurix_session';
   const cookieOptions = { path: '/', httpOnly: true, sameSite: 'strict', secure: secureCookies } as const;
   const dummyHash = hashPassword(randomBytes(32).toString('hex'));
+  const getNews = createNewsService();
   void app.register(cookie);
   void app.register(cors, { origin, credentials: true, methods: ['GET', 'POST', 'PATCH', 'OPTIONS'] });
   void app.register(rateLimit, { max: 120, timeWindow: '1 minute', errorResponseBuilder: () => new HttpError(429, 'Demasiadas solicitudes. Inténtalo de nuevo más tarde.') });
@@ -69,6 +71,10 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
     }
   });
   app.get('/api/content', { schema: { querystring: emptyQuery } }, async () => content);
+  app.get('/api/news', { schema: { querystring: emptyQuery } }, async (_request, reply) => {
+    try { return await getNews(); }
+    catch { return reply.code(503).send({ message: 'Las noticias no están disponibles en este momento.' }); }
+  });
 
   app.post<{ Body: { name: string; email: string; password: string } }>('/api/auth/register', {
     schema: { body: registerBody, querystring: emptyQuery },
