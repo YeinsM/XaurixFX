@@ -4,6 +4,7 @@ import type { Page, User } from '../types';
 const links: { page: Page; label: string }[] = [
   { page: 'home', label: 'Mercados' },
   { page: 'academy', label: 'Academia' },
+  { page: 'broker', label: 'Broker' },
   { page: 'community', label: 'Comunidad' },
 ];
 

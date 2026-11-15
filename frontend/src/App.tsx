@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import type { Page, User } from './types';
 import { api, ApiError } from './lib/api';
 import { AcademyPage } from './components/AcademyPage';
+import { BrokerPage } from './components/BrokerPage';
 import { AuthForm } from './components/AuthForm';
 import { CommunityPage } from './components/CommunityPage';
 import { HomePage } from './components/HomePage';
@@ -10,8 +11,8 @@ import { Modal } from './components/Modal';
 import { ProfileSettings } from './components/ProfileSettings';
 import { SiteHeader } from './components/SiteHeader';
 
-const pages: Page[] = ['home', 'academy', 'community', 'settings'];
-const titles: Record<Page, string> = { home: 'Mercados', academy: 'Academia', community: 'Comunidad', settings: 'Configuración' };
+const pages: Page[] = ['home', 'academy', 'broker', 'community', 'settings'];
+const titles: Record<Page, string> = { home: 'Mercados', academy: 'Academia', broker: 'Broker', community: 'Comunidad', settings: 'Configuración' };
 const currentPage = (): Page => { const hash = location.hash.slice(1) as Page; return pages.includes(hash) ? hash : 'home'; };
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
       <SiteHeader page={page} user={user} onNavigate={navigate} onLogin={() => setAuthOpen(true)} onLogout={() => void logout()} />
       {page === 'home' && <HomePage />}
       {page === 'academy' && <AcademyPage />}
+      {page === 'broker' && <BrokerPage />}
       {page === 'community' && <CommunityPage />}
       {page === 'settings' && (user
         ? <ProfileSettings user={user} onSaved={saved => { setUser(saved); setToast('Tu perfil se actualizó.'); }} onLogout={() => void logout()} />
