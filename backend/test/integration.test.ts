@@ -3,7 +3,9 @@ import { after, before, test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { buildApp } from '../src/app.js';
+import { saveAnalysisRecord } from '../src/analysisRepository.js';
 import { migrate } from '../src/migrate.js';
+import type { AnalysisRecord, AnalysisScenario } from '../src/analysis/types.js';
 
 const url = process.env.TEST_DATABASE_URL;
 if (!url) throw new Error('TEST_DATABASE_URL must point to a disposable PostgreSQL database. Tests use an isolated schema.');
@@ -15,6 +17,48 @@ const headers = { origin: 'http://localhost:5173' };
 const password = 'testing-a-long-secret';
 function cookie(response: { headers: Record<string, unknown> }) {
   return String(response.headers['set-cookie']).split(';')[0]!;
+}
+function waitingScenario(name: 'A' | 'B'): AnalysisScenario {
+  return {
+    name,
+    direction: 'wait',
+    context: 'No hay una configuración confirmada.',
+    preconditions: 'Esperar cierre de vela.',
+    m15Zone: 'No disponible',
+    m5Confirmation: 'Esperar confirmación.',
+    entryType: 'wait',
+    entryLow: null,
+    entryHigh: null,
+    stopLoss: null,
+    takeProfits: [null, null, null],
+    cancellation: 'No aplica.',
+    management: 'No aplica.',
+    validity: 'Reanalizar tras nuevo cierre.',
+    invalidation: 'No aplica.',
+    rationale: 'Esperar.',
+  };
+}
+function analysisRecord(analysisDate: string, status: AnalysisRecord['status']): AnalysisRecord {
+  return {
+    analysisDate,
+    status,
+    report: status === 'published'
+      ? {
+          macro: 'H4 alcista', confluence: 'EMA alineadas', entryPlan: 'Esperar BOS M5',
+          scenarios: [waitingScenario('A'), waitingScenario('B')],
+        }
+      : null,
+    sources: {
+      market: [],
+      calendar: { status: 'unavailable', summary: 'No se pudo verificar el calendario.', citations: [] },
+    },
+    referencePrice: status === 'published' ? '2000.00' : null,
+    referenceAt: status === 'published' ? '2026-11-18T12:00:00Z' : null,
+    generatedAt: status === 'published' ? '2026-11-18T12:01:00Z' : null,
+    model: status === 'published' ? 'gemini-test' : null,
+    promptVersion: status === 'published' ? 'test-v1' : null,
+    errorCode: status === 'failed' ? 'provider_error' : null,
+  };
 }
 before(async () => {
   await admin.query(`CREATE SCHEMA ${schema}`);
@@ -101,6 +145,37 @@ test('starter catalog has actual text lessons and health checks PostgreSQL', asy
   assert.equal(content.courses.length, 3);
   assert.ok(content.courses.every((course: { body: string[] }) => course.body.length >= 3));
   assert.equal(content.analyses, undefined);
+});
+
+test('daily analyses are unique by date and public history is descending and paginated', async () => {
+  await saveAnalysisRecord(pool, analysisRecord('2026-11-18', 'published'));
+  await saveAnalysisRecord(pool, analysisRecord('2026-11-17', 'insufficient_data'));
+  await saveAnalysisRecord(pool, analysisRecord('2026-11-16', 'failed'));
+  await assert.rejects(
+    saveAnalysisRecord(pool, analysisRecord('2026-11-18', 'failed')),
+    (error: { code?: string }) => error.code === '23505',
+  );
+
+  const first = await app.inject('/api/analysis?limit=2');
+  assert.equal(first.statusCode, 200);
+  assert.deepEqual(first.json().analyses.map((record: { analysisDate: string }) => record.analysisDate), ['2026-11-18', '2026-11-17']);
+  assert.equal(first.json().nextBefore, '2026-11-16');
+  assert.equal(first.json().analyses[0].report.macro, 'H4 alcista');
+  assert.equal(first.json().analyses[1].report, null);
+
+  const second = await app.inject(`/api/analysis?before=${first.json().nextBefore}&limit=2`);
+  assert.equal(second.statusCode, 200);
+  assert.deepEqual(second.json().analyses.map((record: { analysisDate: string }) => record.analysisDate), ['2026-11-16']);
+  assert.equal(second.json().nextBefore, null);
+  assert.doesNotMatch(JSON.stringify(first.json()), /GEMINI_API_KEY|GOLDPRICE_API_KEY|apiKey/);
+});
+
+test('analysis history validates query parameters and treats before as inclusive', async () => {
+  const response = await app.inject('/api/analysis?limit=1&before=2026-11-17');
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json().analyses.map((record: { analysisDate: string }) => record.analysisDate), ['2026-11-17']);
+  assert.equal((await app.inject('/api/analysis?limit=31')).statusCode, 400);
+  assert.equal((await app.inject('/api/analysis?before=2026-02-31')).statusCode, 400);
 });
 
 test('production cookie is host-only and secure; login attempts are rate limited', async () => {

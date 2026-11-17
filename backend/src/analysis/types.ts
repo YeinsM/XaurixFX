@@ -110,3 +110,22 @@ export interface GeneratedAnalysis {
   report: AnalysisReport;
   calendar: CalendarResult;
 }
+
+export interface AnalysisSources {
+  market: MarketSource[];
+  calendar: CalendarResult;
+}
+
+export interface AnalysisRecord {
+  analysisDate: string;
+  status: AnalysisStatus;
+  report: AnalysisReport | null;
+  sources: AnalysisSources;
+  marketSource: string | null;
+  referencePrice: string | null;
+  referenceAt: string | null;
+  generatedAt: string | null;
+  model: string | null;
+  promptVersion: string | null;
+  errorCode: string | null;
+}

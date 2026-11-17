@@ -6,9 +6,10 @@ import { randomBytes } from 'node:crypto';
 import type { Pool } from 'pg';
 import { hashPassword, verifyPassword } from './security.js';
 import { createSession, findUserByEmail, getSessionUser, registerUser, revokeSession, SESSION_SECONDS, updateProfile, type User } from './repository.js';
-import { emptyQuery, loginBody, profileBody, registerBody } from './schemas.js';
+import { analysisQuery, emptyQuery, loginBody, profileBody, registerBody } from './schemas.js';
 import { content } from './content.js';
 import { createNewsService } from './news.js';
+import { listAnalysisRecords } from './analysisRepository.js';
 
 class HttpError extends Error {
   constructor(public statusCode: number, message: string) { super(message); }
@@ -75,6 +76,23 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
     try { return await getNews(); }
     catch { return reply.code(503).send({ message: 'Las noticias no están disponibles en este momento.' }); }
   });
+  app.get<{ Querystring: { limit?: string; before?: string } }>('/api/analysis', {
+    schema: { querystring: analysisQuery },
+  }, async (request, reply) => {
+    const { before } = request.query;
+    if (before && !isValidAnalysisDate(before)) {
+      return reply.code(400).send({ message: 'La fecha anterior debe ser una fecha válida en formato YYYY-MM-DD.' });
+    }
+    try {
+      return await listAnalysisRecords(pool, {
+        limit: request.query.limit === undefined ? 10 : Number(request.query.limit),
+        before,
+      });
+    } catch {
+      request.log.error({ requestId: request.id, code: 'ANALYSIS_READ_FAILED' }, 'Analysis history query failed');
+      return reply.code(503).send({ message: 'El historial de análisis no está disponible en este momento.' });
+    }
+  });
 
   app.post<{ Body: { name: string; email: string; password: string } }>('/api/auth/register', {
     schema: { body: registerBody, querystring: emptyQuery },
@@ -117,4 +135,9 @@ export function buildApp(options: { pool: Pool; origin: string; secureCookies: b
 
   });
   return app;
+}
+
+function isValidAnalysisDate(value: string): boolean {
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }

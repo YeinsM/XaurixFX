@@ -6,3 +6,11 @@ export const emptyQuery = { type: 'object', additionalProperties: false, propert
 export const registerBody = { type: 'object', additionalProperties: false, required: ['name', 'email', 'password'], properties: { name, email, password } };
 export const loginBody = { type: 'object', additionalProperties: false, required: ['email', 'password'], properties: { email, password: { ...password, minLength: 1 } } };
 export const profileBody = { type: 'object', additionalProperties: false, required: ['name'], properties: { name } };
+export const analysisQuery = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    limit: { type: 'string', pattern: '^(?:[1-9]|[12][0-9]|30)$' },
+    before: { type: 'string', pattern: '^\\d{4}-\\d{2}-\\d{2}$' },
+  },
+};
