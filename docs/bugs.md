@@ -12,6 +12,7 @@ No copiar logs completos ni datos personales.
 | ID | Área/palabras clave | Estado | Regla/control | Detalle |
 |---|---|---|---|---|
 | BUG-001 | Encabezado público; desborde móvil | verificado | revisar ancho de documento a 390 px | detalle abajo |
+| BUG-002 | Análisis; tabla comparativa desborda en móvil | verificado | validar ancho del documento y scroll interno de tabla a 390 px | detalle abajo |
 
 ## Formato para el primer caso real
 - ID BUG-NNN, fecha, severidad P0/P1/P2/P3, área y estado.
@@ -35,3 +36,12 @@ no garantiza que los errores no vuelvan a ocurrir.
 - Corrección: a 700 px o menos, encabezado en dos filas con navegación horizontal contenida.
 - Prevención: revisar en navegador a 390 px que document.documentElement.scrollWidth <= window.innerWidth y que el CTA sea visible. Límite: control manual, no prueba automatizada.
 - Evidencia: después de la corrección, scrollWidth 375 px e innerWidth 390 px; captura visual móvil comprobada.
+
+## BUG-002
+### Tabla comparativa de Análisis en móvil
+- Fecha: 2026-11-17. Severidad P2. Estado: verificado.
+- Reproducción: mostrar un informe con tabla comparativa a 390 px. Antes de corregir, el documento medía 1151 px y el contenedor comparativo 1100 px; se esperaba desplazamiento horizontal solo dentro de la tabla.
+- Causa: los tracks automáticos del grid de `.an-report` heredaban el ancho mínimo intrínseco de la tabla y ensanchaban las secciones.
+- Corrección: limitar el grid a `minmax(0,1fr)` y permitir que secciones y wrapper reduzcan su ancho; mantener el desbordamiento horizontal en `.an-table-scroll`.
+- Prevención: en la vista Análisis con datos representativos, comprobar `document.documentElement.scrollWidth <= window.innerWidth` y que `.an-table-scroll.scrollWidth > .an-table-scroll.clientWidth` a 390 px. Límite: comprobación manual en navegador.
+- Evidencia: a 390 px, ancho del documento 375 px y wrapper de tabla 309 px con tabla interna de 1100 px; a 1440 px, ancho del documento 1425 px. Solo la tabla necesita desplazamiento horizontal.

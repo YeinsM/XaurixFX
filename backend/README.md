@@ -15,7 +15,7 @@ Default listen address: `127.0.0.1:4000`. `FRONTEND_ORIGIN` defaults to `http://
 
 ## API contract
 
-All request/response bodies are JSON except the empty logout response. Errors use `{ "message": "..." }`. Input schemas reject unknown properties and query parameters. No route accepts a client-supplied owner or balance. Successful user payloads contain only `{ id, name, email }`. No paging is needed: there is one account per registered user, live history is empty, and the public starter catalog is fixed at three courses and three illustrative analyses.
+All request/response bodies are JSON except the empty logout response. Errors use `{ "message": "..." }`. Input schemas reject unknown properties and query parameters. No route accepts a client-supplied owner or balance. Successful user payloads contain only `{ id, name, email }`. The public starter catalog is fixed at three courses.
 
 | Method and route | Access | Input / output |
 |---|---|---|
@@ -26,7 +26,15 @@ All request/response bodies are JSON except the empty logout response. Errors us
 | `POST /api/auth/logout` | Origin | Revokes current session, clears cookie, returns 204. Repeating logout is harmless. |
 | `PATCH /api/profile` | Session + origin | `{name}` → `{user}` for the session owner; last successful update wins |
 | `GET /api/content` | Public | `{courses}`; starter text lessons, no video/media claims |
+| `GET /api/analysis` | Public | `?limit=1..30&before=YYYY-MM-DD` → `{analyses,nextBefore}`; newest first, with an inclusive date cursor. Reads stored records only; it does not trigger generation. |
 
+## Daily XAUUSD analysis
+
+The backend fetches a current XAUUSD spot quote and closed 5m, 15m, 1h and 4h candles from GoldPrice.dev, calculates indicators and scenario risk/reward values, and asks Gemini for a structured, cited interpretation. Configure `GOLDPRICE_API_KEY` with GoldPrice.dev Pro intraday access, `GEMINI_API_KEY`, and optionally `GEMINI_MODEL` (default: `gemini-4-hydrogen`). Keep provider keys only in the ignored `backend/.env`; the example file contains blank values.
+
+The server process schedules the job for 08:00 `America/Santo_Domingo` (UTC−4). It must be running for the scheduled job; on startup after 08:00 it catches up only if that day's record is missing. PostgreSQL date locking and the unique date constraint prevent duplicate daily records. Transient provider failures are retried after 1, 5 and 15 minutes; a final failure is stored with status `failed`. Insufficient or stale market data is not presented as a current actionable setup.
+
+The public **Análisis** page reads the latest history through `GET /api/analysis`; `limit` defaults to 10 and `before` is an inclusive `YYYY-MM-DD` cursor returned as `nextBefore`. `insufficient_data` and `failed` records do not contain a published report. The page is informational only: it does not execute trades or request a new report from the browser.
 
 ## Identity and database integrity
 
