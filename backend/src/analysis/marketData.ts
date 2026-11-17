@@ -127,6 +127,7 @@ async function requestJson(
 
   if (response.status === 403) throw new MarketDataError('provider_forbidden', 'GoldPrice plan does not allow this data');
   if (response.status === 429) throw new MarketDataError('rate_limited', 'GoldPrice request limit reached');
+  if (response.status >= 500) throw new MarketDataError('provider_unavailable', `GoldPrice request failed with status ${response.status}`);
   if (!response.ok) throw new MarketDataError('provider_error', `GoldPrice request failed with status ${response.status}`);
 
   try {

@@ -87,6 +87,7 @@ export function buildAnalysisPrompt(input: AnalysisInput, calendar: CalendarResu
     'Usa solo velas cerradas (isClosed=true). No busques, sustituyas ni inventes cotizaciones, indicadores, velas, niveles o noticias.',
     'Incluye la fuente, fecha, hora y precio de referencia. La fuente de precio es GoldPrice.dev; expresa las horas en República Dominicana (UTC−4).',
     'Si spot.isStale es true, no propongas niveles de entrada vigentes. El volumen spot null significa que no existe volumen consolidado; no lo conviertas en cero.',
+    'Si actionableData es false, usa las velas únicamente para explicar el contexto histórico; ambos escenarios deben tener dirección wait y todos los precios de entrada, stop y objetivos en null. No presentes esos datos como niveles vigentes.',
     'Las zonas institucionales, Order Blocks, FVG y liquidez son interpretaciones técnicas; no afirme conocer órdenes o posiciones reales.',
     'Usa los indicadores adjuntos; no los recalcules. EMA usa alpha 2/(period+1) y semilla SMA; RSI 14 usa suavizado de Wilder; Momentum 14 = cierre actual / cierre de hace 14 velas × 100, con referencia 100.',
     'Las horas se expresan en República Dominicana (America/Santo_Domingo, UTC−4). Usa únicamente los eventos con cita adjuntos; si no se verificó el calendario, dilo claramente.',
@@ -101,6 +102,13 @@ export function buildAnalysisPrompt(input: AnalysisInput, calendar: CalendarResu
     'Termina el texto de la tercera parte con “Preferencia actual: [escenario o esperar], condicionada a [confirmación concreta]”. El frontend genera la tabla comparativa desde los campos estructurados de los escenarios.',
     '',
     'Paquete de mercado e indicadores verificados:',
-    JSON.stringify({ market, indicators: input.indicators, calendar: calendarContext }),
+    JSON.stringify({
+      analysisTime: input.analysisTime,
+      market,
+      indicators: input.indicators,
+      actionableData: input.actionableData,
+      barsAreCurrent: input.barsAreCurrent,
+      calendar: calendarContext,
+    }),
   ].join('\n');
 }

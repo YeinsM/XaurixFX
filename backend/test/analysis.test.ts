@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import Fastify from 'fastify';
 import { calculateEma, calculateMomentum, calculateRsi } from '../src/analysis/indicators.js';
 import { createGeminiAnalysisClient, GeminiAnalysisError } from '../src/analysis/gemini.js';
 import { createMarketDataClient, MarketDataError } from '../src/analysis/marketData.js';
 import { calculateScenarioMetrics, validateScenario } from '../src/analysis/scenarios.js';
+import { runDailyAnalysis } from '../src/analysis/service.js';
+import { registerAnalysisScheduler, startDailyAnalysisScheduler } from '../src/analysis/scheduler.js';
 import { readConfig } from '../src/config.js';
-import type { AnalysisInput, AnalysisReport } from '../src/analysis/types.js';
+import type { AnalysisInput, AnalysisRecord, AnalysisReport, MarketInterval, MarketSnapshot } from '../src/analysis/types.js';
 
 const referenceTime = new Date('2026-11-17T12:00:00Z');
 const testApiKey = 'test-secret-not-for-logs';
@@ -32,6 +35,7 @@ function barResponse(interval: string) {
 }
 
 const analysisInput: AnalysisInput = {
+  analysisTime: '2026-11-17T13:00:00Z',
   snapshot: {
     symbol: 'XAU-USD-SPOT',
     spot: {
@@ -50,6 +54,8 @@ const analysisInput: AnalysisInput = {
     interval: interval as '5m' | '15m' | '1h' | '4h',
     ema20: 2000, ema50: 1998, ema200: 1990, rsi14: 52, momentum14: 101,
   })),
+  actionableData: true,
+  barsAreCurrent: true,
 };
 
 function validAnalysisReport(): AnalysisReport {
@@ -93,6 +99,43 @@ function calendarResponse(text = 'Próximo evento relevante: dato de inflación 
         annotations: [{ type: 'url_citation', url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve' }],
       }],
     }],
+  };
+}
+
+function completeSnapshot(options: { stale?: boolean; bars?: number; omit?: MarketInterval } = {}): MarketSnapshot {
+  const now = referenceTime.getTime();
+  const intervals: Array<[MarketInterval, number]> = [
+    ['5m', 5 * 60_000], ['15m', 15 * 60_000], ['1h', 60 * 60_000], ['4h', 4 * 60 * 60_000],
+  ];
+  const length = options.bars ?? 200;
+  return {
+    symbol: 'XAU-USD-SPOT',
+    spot: {
+      price: '2000.00', isStale: options.stale ?? false,
+      computedAt: referenceTime.toISOString(), source: 'GoldPrice.dev', sources: [],
+    },
+    bars: intervals.filter(([interval]) => interval !== options.omit).map(([interval, duration]) => ({
+      interval,
+      bars: Array.from({ length }, (_, index) => {
+        const close = 1900 + index / 10;
+        return {
+          barStart: new Date(now - (length - index) * duration).toISOString(),
+          open: close.toFixed(2), high: (close + 1).toFixed(2),
+          low: (close - 1).toFixed(2), close: close.toFixed(2),
+          volume: null, isClosed: true,
+        };
+      }),
+    })),
+  };
+}
+
+function dailyAnalysisRepository() {
+  const records = new Map<string, AnalysisRecord>();
+  return {
+    records,
+    withDateLock: async <T>(_date: string, operation: () => Promise<T>) => operation(),
+    findByDate: async (date: string) => records.get(date),
+    save: async (record: AnalysisRecord) => { records.set(record.analysisDate, record); },
   };
 }
 
@@ -225,8 +268,13 @@ test('market data rejects a zero spot price as unusable', async () => {
     error instanceof MarketDataError && error.code === 'invalid_payload');
 });
 
-test('market data reports provider errors without exposing the API key', async () => {
-  for (const [status, code] of [[403, 'provider_forbidden'], [429, 'rate_limited']] as const) {
+test('market data classifies retryable server failures separately from permanent provider errors', async () => {
+  for (const [status, code] of [
+    [403, 'provider_forbidden'],
+    [429, 'rate_limited'],
+    [401, 'provider_error'],
+    [503, 'provider_unavailable'],
+  ] as const) {
     const client = createMarketDataClient({
       apiKey: testApiKey,
       fetch: async input => {
@@ -294,11 +342,13 @@ test('Gemini grounds only the calendar request and analyzes supplied market data
   assert.equal(fake.calls[1]?.tools, undefined);
   assert.equal(fake.calls[1]?.store, false);
   assert.match(String(fake.calls[0]?.input), /calendario/i);
+  assert.match(String(fake.calls[0]?.input), /9:00/);
   assert.match(String(fake.calls[1]?.input), /GoldPrice\.dev/);
   assert.match(String(fake.calls[1]?.input), /no busques.*cotizaciones/i);
   assert.match(String(fake.calls[1]?.input), /precio de referencia/i);
   assert.match(String(fake.calls[1]?.input), /no recibió capturas/i);
   assert.match(String(fake.calls[1]?.input), /isStale.*no propongas niveles/i);
+  assert.match(String(fake.calls[1]?.input), /actionableData.*false.*dirección wait/i);
   assert.match(String(fake.calls[1]?.input), /EMA 20/);
   assert.equal(result.calendar.status, 'verified');
   assert.deepEqual(result.calendar.citations, [{
@@ -338,4 +388,285 @@ test('Gemini provider failures are explicit and do not expose credentials', asyn
   const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
   await assert.rejects(service.generateReport(analysisInput), error =>
     error instanceof GeminiAnalysisError && error.code === 'provider_error' && !error.message.includes(testApiKey));
+});
+
+test('daily analysis calculates indicators, publishes the report and attaches scenario metrics', async () => {
+  const repository = dailyAnalysisRepository();
+  let receivedInput: AnalysisInput | undefined;
+  const result = await runDailyAnalysis('2026-11-17', {
+    repository,
+    marketData: { fetchSnapshot: async () => completeSnapshot() },
+    generateReport: async input => {
+      receivedInput = input;
+      return { report: validAnalysisReport(), calendar: calendarResponseResult };
+    },
+    model: 'gemini-test',
+    clock: () => referenceTime,
+  });
+
+  assert.equal(result.status, 'published');
+  assert.equal(result.referencePrice, '2000.00');
+  assert.equal(receivedInput?.indicators.find(item => item.interval === '4h')?.ema200, 1909.95);
+  assert.equal(result.report?.scenarios[0].metrics?.entryReference, 2001);
+  assert.deepEqual(result.report?.scenarios[0].metrics?.rewardRisk, [1.8, 2.6, 3.4]);
+  assert.equal(result.sources.calendar.status, 'verified');
+});
+
+const calendarResponseResult = {
+  status: 'verified' as const,
+  summary: 'Próximo evento relevante.',
+  citations: [{ url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve' }],
+};
+
+test('missing credentials persist a sanitized failure without calling providers', async () => {
+  const repository = dailyAnalysisRepository();
+  const result = await runDailyAnalysis('2026-11-17', {
+    repository,
+    model: 'gemini-test',
+    clock: () => referenceTime,
+  });
+
+  assert.equal(result.status, 'failed');
+  assert.equal(result.errorCode, 'missing_api_key');
+});
+
+test('incomplete market data persists insufficient_data without generating levels', async () => {
+  const gappedSnapshot = completeSnapshot();
+  const m5Bars = gappedSnapshot.bars.find(item => item.interval === '5m')!.bars;
+  m5Bars[80]!.barStart = new Date(Date.parse(m5Bars[80]!.barStart) + 5 * 60_000).toISOString();
+  for (const snapshot of [
+    completeSnapshot({ omit: '5m' }),
+    completeSnapshot({ bars: 199 }),
+    gappedSnapshot,
+  ]) {
+    const repository = dailyAnalysisRepository();
+    let reportCalls = 0;
+    const result = await runDailyAnalysis('2026-11-17', {
+      repository,
+      marketData: { fetchSnapshot: async () => snapshot },
+      generateReport: async () => {
+        reportCalls++;
+        return { report: validAnalysisReport(), calendar: calendarResponseResult };
+      },
+      model: 'gemini-test',
+      clock: () => referenceTime,
+    });
+
+    assert.equal(result.status, 'insufficient_data');
+    assert.equal(reportCalls, 0);
+  }
+});
+
+test('stale bars keep historical context but never publish actionable scenario levels', async () => {
+  const staleBars = completeSnapshot();
+  const staleBarsSnapshot = completeSnapshot();
+  for (const bar of staleBarsSnapshot.bars.find(item => item.interval === '5m')!.bars) {
+    bar.barStart = new Date(Date.parse(bar.barStart) - 30 * 60_000).toISOString();
+  }
+  for (const timeframe of staleBars.bars) {
+    for (const bar of timeframe.bars) {
+      bar.barStart = new Date(Date.parse(bar.barStart) - 48 * 60 * 60_000).toISOString();
+    }
+  }
+  for (const snapshot of [staleBars, staleBarsSnapshot, completeSnapshot({ stale: true })]) {
+    const repository = dailyAnalysisRepository();
+    let actionableData = true;
+    const result = await runDailyAnalysis('2026-11-17', {
+      repository,
+      marketData: { fetchSnapshot: async () => snapshot },
+      generateReport: async input => {
+        actionableData = input.actionableData;
+        return { report: validAnalysisReport(), calendar: calendarResponseResult };
+      },
+      model: 'gemini-test',
+      clock: () => referenceTime,
+    });
+
+    assert.equal(result.status, 'published');
+    assert.equal(actionableData, false);
+    assert.ok(result.report?.scenarios.every(scenario =>
+      scenario.direction === 'wait' && scenario.entryLow === null && scenario.entryHigh === null &&
+      scenario.stopLoss === null && scenario.takeProfits.every(price => price === null)));
+    assert.match(result.report?.entryPlan ?? '', /datos no actuales/i);
+    const barSource = result.sources.market.find(source => source.displayName === 'Velas cerradas');
+    assert.equal(barSource?.isStale, snapshot === staleBars || snapshot === staleBarsSnapshot);
+  }
+});
+
+test('a provider quote newer than the fetch start is validated against post-fetch time', async () => {
+  const snapshot = completeSnapshot();
+  snapshot.spot.computedAt = '2026-11-17T12:00:00.500Z';
+  let clockCalls = 0;
+  const result = await runDailyAnalysis('2026-11-17', {
+    repository: dailyAnalysisRepository(),
+    marketData: { fetchSnapshot: async () => snapshot },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => new Date(referenceTime.getTime() + Math.max(0, clockCalls++) * 1000),
+  });
+  assert.equal(result.status, 'published');
+});
+
+test('non-transient provider errors fail once while transient errors retry with backoff', async () => {
+  const permanentRepository = dailyAnalysisRepository();
+  let permanentAttempts = 0;
+  const permanent = await runDailyAnalysis('2026-11-17', {
+    repository: permanentRepository,
+    marketData: {
+      fetchSnapshot: async () => {
+        permanentAttempts++;
+        throw new MarketDataError('provider_error', 'permanent request failure');
+      },
+    },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => referenceTime,
+    sleep: async () => {},
+  });
+  assert.equal(permanent.status, 'failed');
+  assert.equal(permanentAttempts, 1);
+
+  const forbiddenRepository = dailyAnalysisRepository();
+  let forbiddenAttempts = 0;
+  const forbidden = await runDailyAnalysis('2026-11-17', {
+    repository: forbiddenRepository,
+    marketData: {
+      fetchSnapshot: async () => {
+        forbiddenAttempts++;
+        throw new MarketDataError('provider_forbidden', 'plan does not allow bars');
+      },
+    },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => referenceTime,
+  });
+  assert.equal(forbidden.status, 'failed');
+  assert.equal(forbidden.errorCode, 'provider_forbidden');
+  assert.equal(forbiddenAttempts, 1);
+
+  const retryRepository = dailyAnalysisRepository();
+  let attempts = 0;
+  const delays: number[] = [];
+  const retried = await runDailyAnalysis('2026-11-17', {
+    repository: retryRepository,
+    marketData: {
+      fetchSnapshot: async () => {
+        attempts++;
+        if (attempts === 1) throw new MarketDataError('provider_unavailable', 'temporary failure');
+        return completeSnapshot();
+      },
+    },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => referenceTime,
+    sleep: async milliseconds => { delays.push(milliseconds); },
+  });
+  assert.equal(retried.status, 'published');
+  assert.equal(attempts, 2);
+  assert.deepEqual(delays, [60_000]);
+
+  const modelRepository = dailyAnalysisRepository();
+  let modelAttempts = 0;
+  const modelDelays: number[] = [];
+  const modelRetried = await runDailyAnalysis('2026-11-17', {
+    repository: modelRepository,
+    marketData: { fetchSnapshot: async () => completeSnapshot() },
+    generateReport: async () => {
+      modelAttempts++;
+      if (modelAttempts === 1) throw new GeminiAnalysisError('provider_error', 'temporary failure');
+      return { report: validAnalysisReport(), calendar: calendarResponseResult };
+    },
+    model: 'gemini-test',
+    clock: () => referenceTime,
+    sleep: async milliseconds => { modelDelays.push(milliseconds); },
+  });
+  assert.equal(modelRetried.status, 'published');
+  assert.equal(modelAttempts, 2);
+  assert.deepEqual(modelDelays, [60_000]);
+});
+
+test('exhausted transient retries persist failed and duplicate daily runs are idempotent', async () => {
+  const repository = dailyAnalysisRepository();
+  let attempts = 0;
+  const delays: number[] = [];
+  const dependencies = {
+    repository,
+    marketData: {
+      fetchSnapshot: async () => {
+        attempts++;
+        throw new MarketDataError('rate_limited', 'temporary failure');
+      },
+    },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => referenceTime,
+    sleep: async (milliseconds: number) => { delays.push(milliseconds); },
+  };
+  const failed = await runDailyAnalysis('2026-11-17', dependencies);
+  assert.equal(failed.status, 'failed');
+  assert.equal(attempts, 4);
+  assert.deepEqual(delays, [60_000, 300_000, 900_000]);
+
+  let duplicateProviderCalls = 0;
+  const existing = await runDailyAnalysis('2026-11-17', {
+    repository,
+    marketData: { fetchSnapshot: async () => { duplicateProviderCalls++; return completeSnapshot(); } },
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
+    model: 'gemini-test',
+    clock: () => referenceTime,
+  });
+  assert.equal(existing, failed);
+  assert.equal(duplicateProviderCalls, 0);
+  assert.equal(repository.records.size, 1);
+});
+
+test('daily analysis scheduler runs at 08:00 Dominican time and catches up after 08:00', async () => {
+  let now = new Date('2026-11-17T11:59:59Z');
+  const calls: string[] = [];
+  let scheduledCallback: (() => void) | undefined;
+  const scheduler = startDailyAnalysisScheduler({
+    run: async date => { calls.push(date); },
+    clock: () => now,
+    onError: () => assert.fail('scheduler should not report an error'),
+    schedule: (_expression, callback, options) => {
+      assert.equal(_expression, '0 8 * * *');
+      assert.equal(options.timezone, 'America/Santo_Domingo');
+      scheduledCallback = callback;
+      return { stop: () => {} };
+    },
+  });
+  assert.deepEqual(calls, []);
+  now = new Date('2026-11-17T12:00:00Z');
+  scheduledCallback?.();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, ['2026-11-17']);
+  scheduler.stop();
+
+  now = new Date('2026-11-17T12:01:00Z');
+  const catchUp = startDailyAnalysisScheduler({
+    run: async date => { calls.push(date); },
+    clock: () => now,
+    onError: () => assert.fail('scheduler should not report an error'),
+    schedule: () => ({ stop: () => {} }),
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(calls, ['2026-11-17', '2026-11-17']);
+  catchUp.stop();
+});
+
+test('daily analysis scheduler stops with Fastify shutdown', async () => {
+  const app = Fastify();
+  let stopped = false;
+  registerAnalysisScheduler(app, { stop: () => { stopped = true; } });
+  await app.close();
+  assert.equal(stopped, true);
+});
+
+test('node-cron accepts the Dominican time zone and daily schedule options', async () => {
+  const scheduler = startDailyAnalysisScheduler({
+    run: async () => assert.fail('startup is before 08:00 Dominican time'),
+    onError: error => assert.fail(String(error)),
+    clock: () => new Date('2026-11-17T11:00:00Z'),
+  });
+  await scheduler.stop();
 });

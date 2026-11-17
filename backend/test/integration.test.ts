@@ -3,7 +3,7 @@ import { after, before, test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { buildApp } from '../src/app.js';
-import { saveAnalysisRecord } from '../src/analysisRepository.js';
+import { saveAnalysisRecord, withAnalysisDateLock } from '../src/analysisRepository.js';
 import { migrate } from '../src/migrate.js';
 import type { AnalysisRecord, AnalysisScenario } from '../src/analysis/types.js';
 
@@ -168,6 +168,36 @@ test('daily analyses are unique by date and public history is descending and pag
   assert.deepEqual(second.json().analyses.map((record: { analysisDate: string }) => record.analysisDate), ['2026-11-16']);
   assert.equal(second.json().nextBefore, null);
   assert.doesNotMatch(JSON.stringify(first.json()), /GEMINI_API_KEY|GOLDPRICE_API_KEY|apiKey/);
+});
+
+test('daily advisory lock serializes same-date jobs and releases after errors', async () => {
+  let releaseFirst!: () => void;
+  let markFirstEntered!: () => void;
+  const firstEntered = new Promise<void>(resolve => { markFirstEntered = resolve; });
+  const firstGate = new Promise<void>(resolve => { releaseFirst = resolve; });
+  let secondEntered = false;
+  const first = withAnalysisDateLock(pool, '2026-11-15', async () => {
+    markFirstEntered();
+    await firstGate;
+    return 'first';
+  });
+  await firstEntered;
+  const second = withAnalysisDateLock(pool, '2026-11-15', async () => {
+    secondEntered = true;
+    return 'second';
+  });
+  await new Promise(resolve => setTimeout(resolve, 50));
+  assert.equal(secondEntered, false);
+  releaseFirst();
+  assert.deepEqual(await Promise.all([first, second]), ['first', 'second']);
+  await assert.rejects(
+    withAnalysisDateLock(pool, '2026-11-15', async () => { throw new Error('test failure'); }),
+    /test failure/,
+  );
+  assert.equal(
+    await withAnalysisDateLock(pool, '2026-11-15', async () => 'released'),
+    'released',
+  );
 });
 
 test('analysis history validates query parameters and treats before as inclusive', async () => {

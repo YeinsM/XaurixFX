@@ -18,6 +18,58 @@ interface AnalysisPage {
   nextBefore: string | null;
 }
 
+export function createAnalysisRepository(pool: Pool) {
+  return {
+    withDateLock: <T>(date: string, operation: () => Promise<T>) =>
+      withAnalysisDateLock(pool, date, operation),
+    findByDate: (date: string) => findAnalysisByDate(pool, date),
+    save: (record: AnalysisRecord) => saveAnalysisRecord(pool, record),
+  };
+}
+
+export async function withAnalysisDateLock<T>(
+  pool: Pool,
+  date: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const client = await pool.connect();
+  const lockKey = `xauusd-daily-analysis:${date}`;
+  try {
+    await client.query('SELECT pg_advisory_lock(hashtextextended($1, 0))', [lockKey]);
+  } catch (error) {
+    client.release(error instanceof Error ? error : new Error('Could not acquire the analysis lock'));
+    throw error;
+  }
+
+  const outcome = await Promise.resolve().then(operation).then(
+    value => ({ ok: true as const, value }),
+    error => ({ ok: false as const, error }),
+  );
+  let unlockError: unknown;
+  try {
+    const result = await client.query(
+      'SELECT pg_advisory_unlock(hashtextextended($1, 0)) AS released',
+      [lockKey],
+    );
+    if (result.rows[0]?.released !== true) throw new Error('Analysis lock was not held during release');
+  } catch (error) {
+    unlockError = error;
+  }
+  const releaseError = unlockError === undefined
+    ? undefined
+    : unlockError instanceof Error ? unlockError : new Error('Could not release the analysis lock');
+  client.release(releaseError);
+
+  if (!outcome.ok) {
+    if (unlockError !== undefined) {
+      throw new AggregateError([outcome.error, unlockError], 'Analysis operation and lock release both failed');
+    }
+    throw outcome.error;
+  }
+  if (unlockError !== undefined) throw unlockError;
+  return outcome.value;
+}
+
 export async function saveAnalysisRecord(pool: Pool, record: AnalysisRecord): Promise<void> {
   await pool.query(
     `INSERT INTO market_analyses (

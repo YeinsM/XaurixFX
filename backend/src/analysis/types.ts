@@ -64,8 +64,11 @@ export interface TimeframeIndicatorSnapshot {
 }
 
 export interface AnalysisInput {
+  analysisTime: string;
   snapshot: MarketSnapshot;
   indicators: TimeframeIndicatorSnapshot[];
+  actionableData: boolean;
+  barsAreCurrent: boolean;
 }
 
 export interface CalendarCitation {

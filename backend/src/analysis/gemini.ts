@@ -81,7 +81,7 @@ async function requestCalendar(
   try {
     const response = await requestInteraction(client, {
       model,
-      input: buildCalendarPrompt(input.snapshot.spot.computedAt),
+      input: buildCalendarPrompt(input.analysisTime),
       tools: [{ type: 'google_search' }],
       store: false,
     });
