@@ -17,9 +17,24 @@ export interface TimeframeBars {
   bars: MarketBar[];
 }
 
+export interface MarketSource {
+  source: string;
+  displayName?: string;
+  price?: string;
+  unit?: string;
+  isStale?: boolean;
+  informational?: boolean;
+}
+
 export interface MarketSnapshot {
   symbol: 'XAU-USD-SPOT';
-  spot: { price: string; isStale: boolean; computedAt: string; source: string };
+  spot: {
+    price: string;
+    isStale: boolean;
+    computedAt: string;
+    source: string;
+    sources: MarketSource[];
+  };
   bars: TimeframeBars[];
 }
 
