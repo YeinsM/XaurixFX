@@ -11,7 +11,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "db:migrate": "tsx src/migrate.ts",
-    "test": "tsx --test test/security.test.ts test/news.test.ts",
+    "test": "tsx --test test/security.test.ts test/news.test.ts test/analysis.test.ts",
     "test:integration": "node --env-file-if-exists=.env --import tsx --test test/integration.test.ts"
   },
   "dependencies": {
