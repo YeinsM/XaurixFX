@@ -1,16 +1,9 @@
-import type { ScenarioPrices } from './types.js';
+import type { ScenarioMetrics, ScenarioPrices } from './types.js';
+export type { ScenarioMetrics } from './types.js';
 
 export interface ScenarioValidation {
   valid: boolean;
   errors: string[];
-}
-
-export interface ScenarioMetrics {
-  entryReference: number;
-  risk: number;
-  rewardDistances: [number, number, number];
-  rewardRisk: [number, number, number];
-  belowMinimumRewardRisk: [boolean, boolean, boolean];
 }
 
 export function validateScenario(scenario: ScenarioPrices): ScenarioValidation {

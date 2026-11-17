@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { calculateEma, calculateMomentum, calculateRsi } from '../src/analysis/indicators.js';
+import { createGeminiAnalysisClient, GeminiAnalysisError } from '../src/analysis/gemini.js';
 import { createMarketDataClient, MarketDataError } from '../src/analysis/marketData.js';
 import { calculateScenarioMetrics, validateScenario } from '../src/analysis/scenarios.js';
 import { readConfig } from '../src/config.js';
+import type { AnalysisInput, AnalysisReport } from '../src/analysis/types.js';
 
 const referenceTime = new Date('2026-11-17T12:00:00Z');
 const testApiKey = 'test-secret-not-for-logs';
@@ -27,6 +29,88 @@ function barResponse(interval: string) {
       { bar_start: '2026-11-17T11:55:00Z', open: '2000', high: '2002', low: '1999', close: '2001', volume: null, is_closed: false },
     ],
   }), { status: 200, headers: { 'content-type': 'application/json' } });
+}
+
+const analysisInput: AnalysisInput = {
+  snapshot: {
+    symbol: 'XAU-USD-SPOT',
+    spot: {
+      price: '2000.00', isStale: false, computedAt: '2026-11-17T12:00:00Z',
+      source: 'GoldPrice.dev', sources: [],
+    },
+    bars: ['5m', '15m', '1h', '4h'].map(interval => ({
+      interval: interval as '5m' | '15m' | '1h' | '4h',
+      bars: [{
+        barStart: '2026-11-17T11:55:00Z', open: '1999', high: '2001',
+        low: '1998', close: '2000', volume: null, isClosed: true,
+      }],
+    })),
+  },
+  indicators: ['5m', '15m', '1h', '4h'].map(interval => ({
+    interval: interval as '5m' | '15m' | '1h' | '4h',
+    ema20: 2000, ema50: 1998, ema200: 1990, rsi14: 52, momentum14: 101,
+  })),
+};
+
+function validAnalysisReport(): AnalysisReport {
+  return {
+    macro: 'H4 y H1 muestran una estructura mixta.',
+    confluence: 'EMA 20: 2000; RSI 14: 52; Momentum 14: 101.',
+    entryPlan: 'Esperar cierre M5 y retesteo.',
+    scenarios: [
+      {
+        name: 'A', direction: 'buy', context: 'Continuación condicionada.',
+        preconditions: 'Cierre por encima del swing.',
+        m15Zone: '1998-2000', m5Confirmation: 'BOS por cierre y retesteo.',
+        entryType: 'market_after_confirmation', entryLow: 2000, entryHigh: 2002,
+        stopLoss: 1996, takeProfits: [2010, 2014, 2018],
+        cancellation: 'Cancelar si pierde el mínimo.',
+        management: 'Parcial en TP1; revisar estructura para mover stop.',
+        validity: 'Válido hasta el cierre H1 siguiente.',
+        invalidation: 'Cierre H1 bajo 1996.', rationale: 'Estructura alcista confirmada.',
+      },
+      {
+        name: 'B', direction: 'wait', context: 'Alternativa si A se invalida.',
+        preconditions: 'Sin confirmación contraria.',
+        m15Zone: 'No disponible', m5Confirmation: 'Esperar CHoCH por cierre.',
+        entryType: 'wait', entryLow: null, entryHigh: null, stopLoss: null,
+        takeProfits: [null, null, null], cancellation: 'No aplica.',
+        management: 'No aplica sin entrada.', validity: 'Reanalizar tras nuevo cierre H1.',
+        invalidation: 'Ninguna entrada propuesta.', rationale: 'No hay una señal contraria confirmada.',
+      },
+    ],
+  };
+}
+
+function calendarResponse(text = 'Próximo evento relevante: dato de inflación de EE. UU.') {
+  return {
+    output_text: text,
+    steps: [{
+      type: 'model_output',
+      content: [{
+        type: 'text',
+        text,
+        annotations: [{ type: 'url_citation', url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve' }],
+      }],
+    }],
+  };
+}
+
+function geminiClient(responses: unknown[] | Error[]) {
+  const calls: Array<Record<string, unknown>> = [];
+  return {
+    calls,
+    client: {
+      interactions: {
+        create: async (request: Record<string, unknown>) => {
+          calls.push(request);
+          const response = responses.shift();
+          if (response instanceof Error) throw response;
+          return response;
+        },
+      },
+    },
+  };
 }
 
 test('EMA seeds with a period SMA, then uses alpha 2/(period+1)', () => {
@@ -190,4 +274,68 @@ test('readConfig exposes optional analysis credentials without requiring them', 
   const withoutKeys = readConfig({ DATABASE_URL: 'postgresql://test' });
   assert.equal(withoutKeys.geminiApiKey, undefined);
   assert.equal(withoutKeys.goldPriceApiKey, undefined);
+});
+
+test('Gemini grounds only the calendar request and analyzes supplied market data without search', async () => {
+  const fake = geminiClient([
+    calendarResponse(),
+    { output_text: JSON.stringify(validAnalysisReport()) },
+  ]);
+  const service = createGeminiAnalysisClient({
+    apiKey: testApiKey,
+    model: 'gemini-test',
+    client: fake.client,
+  });
+  const result = await service.generateReport(analysisInput);
+
+  assert.equal(fake.calls.length, 2);
+  assert.deepEqual(fake.calls[0]?.tools, [{ type: 'google_search' }]);
+  assert.equal(fake.calls[0]?.store, false);
+  assert.equal(fake.calls[1]?.tools, undefined);
+  assert.equal(fake.calls[1]?.store, false);
+  assert.match(String(fake.calls[0]?.input), /calendario/i);
+  assert.match(String(fake.calls[1]?.input), /GoldPrice\.dev/);
+  assert.match(String(fake.calls[1]?.input), /no busques.*cotizaciones/i);
+  assert.match(String(fake.calls[1]?.input), /precio de referencia/i);
+  assert.match(String(fake.calls[1]?.input), /no recibió capturas/i);
+  assert.match(String(fake.calls[1]?.input), /isStale.*no propongas niveles/i);
+  assert.match(String(fake.calls[1]?.input), /EMA 20/);
+  assert.equal(result.calendar.status, 'verified');
+  assert.deepEqual(result.calendar.citations, [{
+    url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve',
+  }]);
+});
+
+test('Gemini reports calendar unavailable without citations and still generates technical analysis', async () => {
+  const fake = geminiClient([
+    {
+      output_text: 'Evento de inflación no verificado.',
+      steps: [{ type: 'model_output', content: [{ type: 'text', text: 'Evento de inflación no verificado.' }] }],
+    },
+    { output_text: JSON.stringify(validAnalysisReport()) },
+  ]);
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
+  const result = await service.generateReport(analysisInput);
+  assert.equal(result.calendar.status, 'unavailable');
+  assert.deepEqual(result.calendar.citations, []);
+  assert.match(result.calendar.summary, /no se pudo verificar/i);
+  assert.doesNotMatch(String(fake.calls[1]?.input), /Evento de inflación no verificado/);
+  assert.equal(fake.calls.length, 2);
+});
+
+test('Gemini rejects malformed JSON, missing fields and raw HTML in report text', async () => {
+  const incomplete = { macro: 'Estructura', confluence: 'EMA' };
+  for (const output of ['{', JSON.stringify(incomplete), JSON.stringify({ ...validAnalysisReport(), macro: '<script>alert(1)</script>' })]) {
+    const fake = geminiClient([calendarResponse(), { output_text: output }]);
+    const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
+    await assert.rejects(service.generateReport(analysisInput), error =>
+      error instanceof GeminiAnalysisError && error.code === 'invalid_report');
+  }
+});
+
+test('Gemini provider failures are explicit and do not expose credentials', async () => {
+  const fake = geminiClient([calendarResponse(), new Error(`provider rejected ${testApiKey}`)]);
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
+  await assert.rejects(service.generateReport(analysisInput), error =>
+    error instanceof GeminiAnalysisError && error.code === 'provider_error' && !error.message.includes(testApiKey));
 });

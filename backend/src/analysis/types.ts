@@ -45,3 +45,68 @@ export interface ScenarioPrices {
   stopLoss: number;
   takeProfits: [number, number, number];
 }
+
+export interface ScenarioMetrics {
+  entryReference: number;
+  risk: number;
+  rewardDistances: [number, number, number];
+  rewardRisk: [number, number, number];
+  belowMinimumRewardRisk: [boolean, boolean, boolean];
+}
+
+export interface TimeframeIndicatorSnapshot {
+  interval: MarketInterval;
+  ema20: number | null;
+  ema50: number | null;
+  ema200: number | null;
+  rsi14: number | null;
+  momentum14: number | null;
+}
+
+export interface AnalysisInput {
+  snapshot: MarketSnapshot;
+  indicators: TimeframeIndicatorSnapshot[];
+}
+
+export interface CalendarCitation {
+  url: string;
+  title: string;
+}
+
+export interface CalendarResult {
+  status: 'verified' | 'unavailable';
+  summary: string;
+  citations: CalendarCitation[];
+}
+
+export interface AnalysisScenario {
+  name: 'A' | 'B';
+  direction: Direction | 'wait';
+  context: string;
+  preconditions: string;
+  m15Zone: string;
+  m5Confirmation: string;
+  entryType: string;
+  entryLow: number | null;
+  entryHigh: number | null;
+  stopLoss: number | null;
+  takeProfits: [number | null, number | null, number | null];
+  cancellation: string;
+  management: string;
+  validity: string;
+  invalidation: string;
+  rationale: string;
+  metrics?: ScenarioMetrics;
+}
+
+export interface AnalysisReport {
+  macro: string;
+  confluence: string;
+  entryPlan: string;
+  scenarios: [AnalysisScenario, AnalysisScenario];
+}
+
+export interface GeneratedAnalysis {
+  report: AnalysisReport;
+  calendar: CalendarResult;
+}
