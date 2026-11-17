@@ -9,12 +9,13 @@ import { CommunityPage } from './components/CommunityPage';
 import { HomePage } from './components/HomePage';
 import { InicioPage } from './components/InicioPage';
 import { NewsPage } from './components/NewsPage';
+import { AnalysisPage } from './components/AnalysisPage';
 import { Modal } from './components/Modal';
 import { ProfileSettings } from './components/ProfileSettings';
 import { SiteHeader } from './components/SiteHeader';
 
-const pages: Page[] = ['inicio', 'home', 'news', 'academy', 'broker', 'community', 'settings'];
-const titles: Record<Page, string> = { inicio: 'Inicio', home: 'Mercados', news: 'Noticias', academy: 'Academia', broker: 'Broker', community: 'Comunidad', settings: 'Configuración' };
+const pages: Page[] = ['inicio', 'home', 'news', 'analysis', 'academy', 'broker', 'community', 'settings'];
+const titles: Record<Page, string> = { inicio: 'Inicio', home: 'Mercados', news: 'Noticias', analysis: 'Análisis', academy: 'Academia', broker: 'Broker', community: 'Comunidad', settings: 'Configuración' };
 const currentPage = (): Page => { const hash = location.hash.slice(1) as Page; return pages.includes(hash) ? hash : 'inicio'; };
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
       {page === 'inicio' && <InicioPage onNavigate={navigate} />}
       {page === 'home' && <HomePage />}
       {page === 'news' && <NewsPage />}
+      {page === 'analysis' && <AnalysisPage />}
       {page === 'academy' && <AcademyPage />}
       {page === 'broker' && <BrokerPage />}
       {page === 'community' && <CommunityPage />}

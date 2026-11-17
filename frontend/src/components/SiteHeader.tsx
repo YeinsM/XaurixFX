@@ -5,6 +5,7 @@ const links: { page: Page; label: string }[] = [
   { page: 'inicio', label: 'Inicio' },
   { page: 'home', label: 'Mercados' },
   { page: 'news', label: 'Noticias' },
+  { page: 'analysis', label: 'Análisis' },
   { page: 'academy', label: 'Academia' },
   { page: 'broker', label: 'Broker' },
   { page: 'community', label: 'Comunidad' },
