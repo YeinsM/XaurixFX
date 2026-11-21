@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:08,500
+100 operaciones: 45 ganan 1,5R y 55 pierden 1R. Esta es la secuencia que observaste.
+
+2
+00:00:08,500 --> 00:00:15,500
+Mismas operaciones en otro orden: el resultado final es igual, el camino no.
+
+3
+00:00:15,500 --> 00:00:22,500
+La distribución de caídas máximas muestra lo que podrías vivir con la misma ventaja.
+
+4
+00:00:22,500 --> 00:00:28,000
+Dimensiona pensando en la peor caída plausible, no en la que tuviste.
+

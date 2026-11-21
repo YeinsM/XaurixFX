@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:09,000
+Ajustas los parámetros con una ventana del pasado y los pruebas en el tramo siguiente.
+
+2
+00:00:09,000 --> 00:00:16,000
+Luego desplazas ambas ventanas hacia adelante y repites, siempre en orden cronológico.
+
+3
+00:00:16,000 --> 00:00:23,000
+Unes solo los tramos de prueba: esa es la evaluación honesta fuera de muestra.
+
+4
+00:00:23,000 --> 00:00:28,500
+Si los parámetros cambian mucho de una ventana a otra, la idea es frágil.
+

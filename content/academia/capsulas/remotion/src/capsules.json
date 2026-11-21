@@ -1,0 +1,87 @@
+[
+  {
+    "id": "1.4-a", "slug": "largo-frente-a-corto", "level": 1,
+    "topic": "1.4 · Posiciones largas y cortas", "title": "Largo frente a corto",
+    "objective": "Comparar el efecto de un mismo movimiento sobre una posición larga y una corta, en bruto y en neto.",
+    "beats": [
+      {"secs": 5.5, "text": "Una posición larga gana si el precio sube; una corta gana si baja."},
+      {"secs": 7, "text": "El oro sube de 2.380 a 2.400. El largo gana 200 USD; el corto pierde 200."},
+      {"secs": 6, "text": "Si luego baja a 2.390, el beneficio del largo se reduce y la pérdida del corto también."},
+      {"secs": 6, "text": "Mientras la posición está abierta el resultado es flotante. Al cerrar, se realiza."},
+      {"secs": 7, "text": "Resultado neto = bruto − costos. Los dos pagan spread y comisión."}
+    ]
+  },
+  {
+    "id": "2.2-b", "slug": "stop-loss-y-take-profit-oco", "level": 2,
+    "topic": "2.2 · Market, limit, stop y stop-limit", "title": "Stop-loss y take-profit vinculados",
+    "objective": "Configurar SL y TP como órdenes vinculadas y ver qué pasa con cada una cuando la otra se ejecuta.",
+    "beats": [
+      {"secs": 6, "text": "Al comprar puedes adjuntar dos órdenes de salida: un stop-loss y un take-profit."},
+      {"secs": 5.5, "text": "Están vinculadas (OCO): cuando una se ejecuta, la otra se cancela."},
+      {"secs": 7.5, "text": "Escenario A: el precio alcanza el take-profit. Cierras con ganancia y el stop se cancela."},
+      {"secs": 7.5, "text": "Escenario B: el precio cae al stop. Cierras con la pérdida prevista y el take-profit se cancela."},
+      {"secs": 6, "text": "Arriesgas 8 para buscar 16: una relación 1:2 decidida antes de entrar."}
+    ]
+  },
+  {
+    "id": "3.1-a", "slug": "soporte-y-resistencia", "level": 3,
+    "topic": "3.1 · Velas, tendencia y rango", "title": "Soporte y resistencia",
+    "objective": "Identificar soportes y resistencias como zonas y reconocer el cambio de rol tras una ruptura.",
+    "beats": [
+      {"secs": 6, "text": "Hay niveles donde el precio se frena una y otra vez."},
+      {"secs": 6, "text": "Soporte: zona donde las caídas se detuvieron porque aparecieron compradores."},
+      {"secs": 5.5, "text": "Resistencia: zona donde las subidas se frenaron por la presión vendedora."},
+      {"secs": 6, "text": "Son zonas, no líneas exactas: las mechas pueden perforarlas un poco."},
+      {"secs": 7.5, "text": "Cuando una resistencia se rompe, a menudo pasa a funcionar como soporte."}
+    ]
+  },
+  {
+    "id": "3.1-b", "slug": "rompimiento-y-falso-rompimiento", "level": 3,
+    "topic": "3.1 · Velas, tendencia y rango", "title": "Rompimiento frente a falso rompimiento",
+    "objective": "Distinguir una ruptura confirmada por cierre de un falso rompimiento.",
+    "beats": [
+      {"secs": 5, "text": "Dos gráficos con el mismo rango y la misma resistencia en 2.395."},
+      {"secs": 7, "text": "Rompimiento: la vela cierra fuera de la zona y el precio se sostiene al volver a probarla."},
+      {"secs": 7, "text": "Falso rompimiento: la mecha supera el nivel, pero la vela cierra dentro y el precio regresa."},
+      {"secs": 7, "text": "Espera el cierre, no el primer toque, y define antes qué invalidaría tu idea."}
+    ]
+  },
+  {
+    "id": "3.4-a", "slug": "tres-escenarios-xauusd", "level": 3,
+    "topic": "3.4 · Tres escenarios para XAUUSD", "title": "Tres escenarios para XAUUSD",
+    "objective": "Formular escenarios alcista, bajista y lateral con confirmación, invalidación y motivos para abstenerse.",
+    "beats": [
+      {"secs": 6, "text": "Partimos de una fecha concreta y usamos solo la información disponible ese día."},
+      {"secs": 6.5, "text": "Alcista: se confirma con un cierre sobre 2.400 y se invalida bajo 2.380."},
+      {"secs": 6.5, "text": "Bajista: se confirma con un cierre bajo 2.370 y se invalida sobre 2.390."},
+      {"secs": 5.5, "text": "Lateral: el precio sigue entre 2.370 y 2.400 sin cierres fuera."},
+      {"secs": 6, "text": "Abstenerse también es un escenario: dato de alto impacto inminente o spread anormal."},
+      {"secs": 6.5, "text": "Guarda la fecha y compara después con lo que pasó, sin reescribir la hipótesis."}
+    ]
+  },
+  {
+    "id": "4.2-a", "slug": "drawdown-y-recuperacion", "level": 4,
+    "topic": "4.2 · Drawdown y exposición acumulada", "title": "Drawdown: caer es más fácil que recuperar",
+    "objective": "Medir el drawdown desde máximos y entender la asimetría entre pérdida y recuperación.",
+    "beats": [
+      {"secs": 6, "text": "El drawdown es la caída del capital desde su último máximo."},
+      {"secs": 6.5, "text": "Se mide en cada momento. El drawdown máximo es la peor caída del período."},
+      {"secs": 6, "text": "Recuperar cuesta más que caer: perder un 10 % exige ganar un 11 %."},
+      {"secs": 6.5, "text": "Con −25 % necesitas +33 %; con −50 %, +100 %."},
+      {"secs": 6, "text": "Por eso se limitan la pérdida por operación y por sesión: un drawdown pequeño es recuperable."}
+    ]
+  },
+  {
+    "id": "4.3-a", "slug": "tasa-de-acierto-y-esperanza", "level": 4,
+    "topic": "4.3 · Tasa de acierto y esperanza matemática", "title": "Tasa de acierto y esperanza",
+    "objective": "Calcular la esperanza en múltiplos de R y ver por qué la tasa de acierto sola no basta.",
+    "beats": [
+      {"secs": 6, "text": "Estrategia A: acierta 4 de cada 10, pero gana 3R y pierde 1R."},
+      {"secs": 6, "text": "Esperanza = 0,4 × 3 − 0,6 × 1 = +0,6R por operación."},
+      {"secs": 6, "text": "Estrategia B: acierta 7 de cada 10, gana 0,5R y pierde 1R."},
+      {"secs": 6, "text": "Esperanza = 0,7 × 0,5 − 0,3 × 1 = +0,05R. Casi cero."},
+      {"secs": 6.5, "text": "Con un costo de 0,1R por operación, A sigue en positivo y B pasa a perder."},
+      {"secs": 6.5, "text": "La tasa de acierto sola no dice nada: importa cuánto ganas y cuánto pierdes."}
+    ]
+  }
+]

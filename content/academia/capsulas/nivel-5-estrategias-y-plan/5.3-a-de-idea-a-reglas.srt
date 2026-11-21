@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,000
+«Comprar retrocesos en tendencia» es una idea, todavía no es un sistema.
+
+2
+00:00:08,000 --> 00:00:15,000
+Define qué operas, cuándo y con qué filtro.
+
+3
+00:00:15,000 --> 00:00:22,000
+Señal, entrada, invalidación y salida, sin margen de interpretación.
+
+4
+00:00:22,000 --> 00:00:29,000
+Tamaño, cuándo abstenerte y cuándo suspender el sistema.
+
+5
+00:00:29,000 --> 00:00:35,000
+Si otra persona obtiene las mismas operaciones con tus reglas, ya tienes reglas.
+

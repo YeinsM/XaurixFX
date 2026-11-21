@@ -5,7 +5,7 @@ import type { AnalysisRecord, AnalysisScenario } from '../types';
 type Props =
   | { state: 'loading' }
   | { state: 'empty' }
-  | { state: 'error'; onRetry?: () => void }
+  | { state: 'error'; onRetry?: () => void; message?: string }
   | { state: 'analysis'; analysis: AnalysisRecord };
 
 const santoDomingo = 'America/Santo_Domingo';
@@ -120,7 +120,7 @@ function ScenarioCard({ scenario }: { scenario: AnalysisScenario }) {
   </article>;
 }
 
-function ComparisonTable({ scenarios }: { scenarios: [AnalysisScenario, AnalysisScenario] }) {
+function ComparisonTable({ scenarios }: { scenarios: AnalysisScenario[] }) {
   return <div className="an-table-scroll">
     <table className="an-comparison">
       <thead><tr>
@@ -143,14 +143,53 @@ function ComparisonTable({ scenarios }: { scenarios: [AnalysisScenario, Analysis
   </div>;
 }
 
+function ScenarioImages({ analysis }: { analysis: AnalysisRecord }) {
+  const images = analysis.images ?? [];
+  if (!images.length) return null;
+  return <section className="an-section panel an-visuals" aria-labelledby={`an-visuals-${analysis.analysisDate}`}>
+    <span className="an-eyebrow">M15 · ENTRADA, SL Y TP</span>
+    <h2 id={`an-visuals-${analysis.analysisDate}`}>Escenarios en el gráfico</h2>
+    <div className="an-visual-grid">
+      {(['A', 'B'] as const).map(name => {
+        const image = images.find(item => item.scenario === name);
+        if (!image) return null;
+        return <figure key={name} className="an-visual">
+          <figcaption><span className="an-visual-badge">{name}</span> Escenario {name}</figcaption>
+          {image.status === 'ready' && image.url
+            ? <a href={image.url} target="_blank" rel="noopener noreferrer" aria-label={`Ampliar imagen del escenario ${name}`}>
+              <img src={image.url} alt={`Gráfico ilustrativo del escenario ${name} con entrada, stop loss y objetivos`} loading="lazy" />
+            </a>
+            : <p className="an-visual-error" role="status">{image.errorMessage ?? 'Imagen no disponible.'}</p>}
+        </figure>;
+      })}
+    </div>
+    <p className="an-disclaimer">Imágenes generadas por IA a partir del texto del escenario; son ilustrativas. Los niveles válidos son los del informe.</p>
+  </section>;
+}
+
 function AnalysisReport({ analysis }: { analysis: AnalysisRecord }) {
   if (analysis.status !== 'published' || !analysis.report) {
     return <section className="an-status panel" role="status">
       <h2>{analysis.status === 'insufficient_data' ? 'Datos insuficientes' : 'Análisis no disponible'}</h2>
       <p>{analysis.status === 'insufficient_data'
         ? 'No se publican niveles operativos porque las cotizaciones o velas verificables no permiten un análisis completo.'
-        : 'No se pudo completar este análisis. No se proponen entradas ni niveles.'}</p>
+        : (analysis.sources.errorMessage ?? 'No se pudo completar este análisis. Revisa la configuración de Gemini.')}</p>
     </section>;
+  }
+
+  // Muestra el texto recibido sin reinterpretar, dividir ni reemplazar el informe.
+  if (analysis.report.rawText !== undefined) {
+    return <article className="an-report">
+      <section className="an-section panel">
+        <span className="an-eyebrow">XAUUSD / {formatAnalysisDate(analysis.analysisDate)}</span>
+        <h2>Análisis técnico</h2>
+        <MarkdownBody>{analysis.report.rawText}</MarkdownBody>
+        {analysis.report.finishReason && analysis.report.finishReason !== 'STOP' &&
+          <p role="status">Motivo de finalización de Google: {analysis.report.finishReason}</p>}
+        {/* Fuentes y sugerencias de Google Search se conservan en la base, pero no se muestran por decisión del usuario. */}
+      </section>
+      <ScenarioImages analysis={analysis} />
+    </article>;
   }
 
   const marketStale = analysis.sources.market.some(source => source.isStale === true);
@@ -217,7 +256,7 @@ export function AnalysisContent(props: Props) {
   if (props.state === 'empty') return <div className="an-status panel"><h2>Aún no hay análisis</h2><p>El informe diario aparecerá aquí cuando esté disponible.</p></div>;
   if (props.state === 'error') return <div className="an-status panel" role="alert">
     <h2>No se pudo cargar el análisis</h2>
-    <p>Inténtalo de nuevo más tarde.</p>
+    <p>{props.message ?? 'Inténtalo de nuevo más tarde.'}</p>
     {props.onRetry && <button className="button secondary" onClick={props.onRetry}>Reintentar</button>}
   </div>;
   return <AnalysisReport analysis={props.analysis} />;

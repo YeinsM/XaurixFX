@@ -81,6 +81,61 @@ function analysisRecord(overrides: Partial<AnalysisRecord> = {}): AnalysisRecord
 }
 
 describe('AnalysisContent', () => {
+  it('renders the complete free-form Gemini answer without legacy panels or replacements', () => {
+    const record = analysisRecord({ report: { rawText: '## Respuesta Gemini\nContenido original con **énfasis** y dos escenarios.', macro: '', confluence: '', entryPlan: '', scenarios: [] } });
+    const html = renderToStaticMarkup(<AnalysisContent state="analysis" analysis={record} />);
+    expect(html).toContain('Respuesta Gemini');
+    expect(html).toContain('Contenido original con <strong>énfasis</strong>');
+    expect(html).not.toContain('No calculable');
+    expect(html).not.toContain('GoldPrice.dev');
+  });
+
+  it('shows the provider failure reason', () => {
+    const record = analysisRecord({ status: 'failed', report: null });
+    record.sources.errorMessage = '429 quota exceeded';
+    expect(renderToStaticMarkup(<AnalysisContent state="analysis" analysis={record} />)).toContain('429 quota exceeded');
+  });
+
+  it('safely renders raw Gemini output without executing HTML', () => {
+    const record = analysisRecord({ report: { rawText: '<script>alert(1)</script>', macro: '', confluence: '', entryPlan: '', scenarios: [] } });
+    const html = renderToStaticMarkup(<AnalysisContent state="analysis" analysis={record} />);
+    expect(html).not.toMatch(/<script(?:\s|>)/i);
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('hides Google sources and suggestions but keeps the partial-output reason', () => {
+    const record = analysisRecord({ report: {
+      rawText: 'Respuesta original', macro: '', confluence: '', entryPlan: '', scenarios: [], finishReason: 'MAX_TOKENS',
+      grounding: { citations: [{ title: 'Fed', url: 'https://www.federalreserve.gov/' }], searchSuggestionsHtml: '<script>alert(1)</script><div>Search</div>' },
+    } });
+    const html = renderToStaticMarkup(<AnalysisContent state="analysis" analysis={record} />);
+    expect(html).not.toContain('https://www.federalreserve.gov/');
+    expect(html).not.toContain('<iframe');
+    expect(html).toContain('Motivo de finalización de Google: MAX_TOKENS');
+    expect(html).not.toMatch(/<script(?:\s|>)/i);
+  });
+
+  it('shows scenario A and B images, and the reason when one failed', () => {
+    const record = analysisRecord({
+      report: { rawText: 'Informe', macro: '', confluence: '', entryPlan: '', scenarios: [] },
+      images: [
+        { scenario: 'A', status: 'ready', url: '/api/analysis/2026-11-17/images/A?v=1' },
+        { scenario: 'B', status: 'failed', errorMessage: 'Cuota agotada' },
+      ],
+    });
+    const html = renderToStaticMarkup(<AnalysisContent state="analysis" analysis={record} />);
+    expect(html).toContain('Escenarios en el gráfico');
+    expect(html).toContain('src="/api/analysis/2026-11-17/images/A?v=1"');
+    expect(html).toContain('Cuota agotada');
+    expect(renderToStaticMarkup(<AnalysisContent state="analysis" analysis={analysisRecord({ report: { rawText: 'x', macro: '', confluence: '', entryPlan: '', scenarios: [] } })} />))
+      .not.toContain('Escenarios en el gráfico');
+  });
+
+  it('shows the actionable API error instead of replacing it with a generic message', () => {
+    const html = renderToStaticMarkup(<AnalysisContent state="error" message="Falta preparar el historial. Ejecuta npm run db:migrate." />);
+    expect(html).toContain('npm run db:migrate');
+  });
+
   it('renders the report, verified sources, citations and calculated scenario table', () => {
     const html = renderToStaticMarkup(<AnalysisContent state="analysis" analysis={analysisRecord()} />);
     expect(html).toContain('ANÁLISIS MACRO Y ESTRUCTURA');

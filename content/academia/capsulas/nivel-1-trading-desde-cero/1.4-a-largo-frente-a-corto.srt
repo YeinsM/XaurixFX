@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:11,290
+Una posición larga gana si el precio sube; una corta gana si baja.
+
+2
+00:00:11,290 --> 00:00:24,040
+El oro sube de 2.380 a 2.400. El largo gana 200 USD; el corto pierde 200.
+
+3
+00:00:24,040 --> 00:00:33,170
+Si luego baja a 2.390, el beneficio del largo se reduce y la pérdida del corto también.
+
+4
+00:00:33,170 --> 00:00:40,580
+Mientras la posición está abierta el resultado es flotante. Al cerrar, se realiza.
+
+5
+00:00:40,580 --> 00:00:51,570
+Resultado neto = bruto − costos. Los dos pagan spread y comisión.
+

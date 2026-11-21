@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Una media móvil de 20 promedia los últimos 20 cierres y suaviza el precio.
+
+2
+00:00:09,000 --> 00:00:14,500
+Como usa datos pasados, va retrasada: confirma, no anticipa.
+
+3
+00:00:14,500 --> 00:00:20,000
+Su pendiente y la posición del precio describen el contexto.
+
+4
+00:00:20,000 --> 00:00:26,000
+El RSI compara la fuerza de las subidas y las bajadas recientes, de 0 a 100.
+
+5
+00:00:26,000 --> 00:00:32,500
+Sobre 70 o bajo 30 no es una orden de venta o compra: es información de contexto.
+

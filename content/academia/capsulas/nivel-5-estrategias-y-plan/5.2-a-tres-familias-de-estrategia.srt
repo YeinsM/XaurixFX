@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:09,000
+Tendencia: compra retrocesos cuando el mercado ya marca dirección.
+
+2
+00:00:09,000 --> 00:00:14,500
+Ruptura: entra cuando el precio sale de un rango con fuerza.
+
+3
+00:00:14,500 --> 00:00:20,500
+Reversión a la media: apuesta a que un exceso vuelve hacia el promedio.
+
+4
+00:00:20,500 --> 00:00:28,000
+Cada familia tiene su régimen y su forma de fallar. Escribe ambos antes de operar.
+

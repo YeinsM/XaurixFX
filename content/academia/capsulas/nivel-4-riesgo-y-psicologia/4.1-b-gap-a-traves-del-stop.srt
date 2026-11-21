@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+Compra en 2.380 con stop en 2.370: arriesgas 10 USD por onza (1R).
+
+2
+00:00:08,500 --> 00:00:13,500
+El viernes el mercado cierra en 2.377. La posición sigue abierta.
+
+3
+00:00:13,500 --> 00:00:20,000
+El lunes abre en 2.360,5. No hubo cotizaciones en 2.370: el stop se ejecuta al primer precio.
+
+4
+00:00:20,000 --> 00:00:26,000
+La pérdida casi duplica el riesgo previsto.
+
+5
+00:00:26,000 --> 00:00:32,000
+Un stop no garantiza el precio. Reduce tamaño ante cierres de semana y noticias.
+

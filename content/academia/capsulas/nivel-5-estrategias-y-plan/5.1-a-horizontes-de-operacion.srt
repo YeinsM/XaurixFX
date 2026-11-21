@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Cuanto más corto el horizonte, más operaciones haces.
+
+2
+00:00:09,000 --> 00:00:15,000
+Con más operaciones, spread y comisión pesan más frente a cada objetivo pequeño.
+
+3
+00:00:15,000 --> 00:00:20,500
+Los horizontes cortos piden más tiempo frente a la pantalla.
+
+4
+00:00:20,500 --> 00:00:26,500
+Los largos mantienen posiciones abiertas por la noche y en fines de semana: riesgo de gap.
+
+5
+00:00:26,500 --> 00:00:32,000
+No hay un horizonte mejor: elige uno que encaje con tu tiempo y tus costos.
+

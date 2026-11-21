@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+Entrada en 100, stop en 98: la pérdida máxima planeada es 1R.
+
+2
+00:00:08,500 --> 00:00:14,000
+El precio se acerca al stop y lo mueves «para darle espacio».
+
+3
+00:00:14,000 --> 00:00:19,500
+Vuelve a pasar. Ahora el riesgo es el doble y la operación ya no es la que planeaste.
+
+4
+00:00:19,500 --> 00:00:25,000
+La salida llega en 94: −3R.
+
+5
+00:00:25,000 --> 00:00:31,000
+Regla del diario: el stop solo se mueve a favor de la operación, nunca para ampliar la pérdida.
+

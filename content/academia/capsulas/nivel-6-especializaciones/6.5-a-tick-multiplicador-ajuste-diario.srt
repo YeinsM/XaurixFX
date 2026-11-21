@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Un futuro se negocia por contratos. La ficha dice cuánto vale cada tick.
+
+2
+00:00:09,000 --> 00:00:15,500
+Un movimiento de 15 USD son 150 ticks: 1.500 USD en el estándar y 150 en el micro.
+
+3
+00:00:15,500 --> 00:00:21,500
+Cada día la cámara liquida la posición al precio de cierre y ajusta tu cuenta.
+
+4
+00:00:21,500 --> 00:00:27,500
+Las pérdidas se descuentan del margen al final de cada sesión, no solo al cerrar.
+
+5
+00:00:27,500 --> 00:00:34,000
+Si el saldo cae bajo el margen de mantenimiento, debes reponer margen o la posición se cierra.
+

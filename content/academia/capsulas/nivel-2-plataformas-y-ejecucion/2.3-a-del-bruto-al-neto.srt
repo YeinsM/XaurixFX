@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:08,000
+El gráfico muestra +500 USD de recorrido. Ese es el resultado bruto.
+
+2
+00:00:08,000 --> 00:00:12,500
+Al entrar pagas el spread.
+
+3
+00:00:12,500 --> 00:00:17,000
+Algunas cuentas cobran comisión por lote en la entrada y en la salida.
+
+4
+00:00:17,000 --> 00:00:22,000
+Deslizamiento: la orden se ejecuta a peor precio que el solicitado.
+
+5
+00:00:22,000 --> 00:00:27,000
+Si mantienes la posición de un día para otro se cobra o se paga financiación (swap).
+
+6
+00:00:27,000 --> 00:00:33,000
+El neto es lo que llega a tu cuenta: +400 USD. Evalúa siempre en neto.
+

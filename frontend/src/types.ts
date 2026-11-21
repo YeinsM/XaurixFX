@@ -45,12 +45,16 @@ export type AnalysisRecord = {
   analysisDate: string;
   status: 'published' | 'insufficient_data' | 'failed';
   report: {
+    rawText?: string;
+    finishReason?: string;
+    grounding?: { citations: { url: string; title: string }[]; searchSuggestionsHtml: string };
     macro: string;
     confluence: string;
     entryPlan: string;
-    scenarios: [AnalysisScenario, AnalysisScenario];
+    scenarios: [AnalysisScenario, AnalysisScenario] | [];
   } | null;
   sources: {
+    errorMessage?: string;
     market: AnalysisSource[];
     calendar: {
       status: 'verified' | 'unavailable';
@@ -65,9 +69,23 @@ export type AnalysisRecord = {
   model: string | null;
   promptVersion: string | null;
   errorCode: string | null;
+  images?: AnalysisImage[];
 };
+
+export type AnalysisImage = { scenario: 'A' | 'B'; status: 'ready' | 'failed'; url?: string; errorMessage?: string };
 
 export type AnalysisResponse = {
   analyses: AnalysisRecord[];
   nextBefore: string | null;
 };
+
+/** Ruta de la Academia: niveles con cápsulas en video y guía PDF (GET /api/academy). */
+export type AcademyCapsule = {
+  id: string; title: string; topic: string; objective: string; durationSec: number; narrated: boolean;
+  /** null en niveles de pago: el backend no expone sus medios. */
+  media: { video: string; subtitles: string; pdf: string } | null;
+};
+/** unlocked: nivel gratuito o sesión de administrador (lo decide el backend). */
+/** manual: URL del manual completo del nivel si está desbloqueado; hasManual indica que existe. */
+export type AcademyLevel = { level: number; name: string; free: boolean; priceUsdt: number | null; unlocked: boolean; hasManual?: boolean; manual?: string | null; capsules: AcademyCapsule[] };
+export type AcademyCatalog = { admin: boolean; levels: AcademyLevel[] };

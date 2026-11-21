@@ -1,29 +1,34 @@
 import { buildApp } from './app.js';
-import { createGeminiAnalysisClient } from './analysis/gemini.js';
-import { createMarketDataClient } from './analysis/marketData.js';
-import { runDailyAnalysis } from './analysis/service.js';
+import { createLocalImageStore } from './analysis/imageStore.js';
+import { createAnalysisPipeline } from './analysis/pipeline.js';
+import { santoDomingoDate } from './analysis/service.js';
 import { registerAnalysisScheduler, startDailyAnalysisScheduler } from './analysis/scheduler.js';
-import { createAnalysisRepository } from './analysisRepository.js';
 import { readConfig } from './config.js';
 import { createPool } from './db.js';
+import { migrate } from './migrate.js';
 
 const config = readConfig();
 const pool = createPool(config.databaseUrl);
-const app = buildApp({ pool, origin: config.origin, secureCookies: config.secureCookies, logger: true });
-const analysisRepository = createAnalysisRepository(pool);
-const marketData = config.goldPriceApiKey
-  ? createMarketDataClient({ apiKey: config.goldPriceApiKey })
-  : undefined;
-const gemini = config.geminiApiKey
-  ? createGeminiAnalysisClient({ apiKey: config.geminiApiKey, model: config.geminiModel })
-  : undefined;
+const imageStore = createLocalImageStore(config.analysisImageDir);
+let logImageError: (error: unknown) => void = () => {};
+const runAnalysis = createAnalysisPipeline({
+  pool, apiKey: config.geminiApiKey, model: config.geminiModel,
+  imageModel: config.geminiImageModel, imageStore, onImageError: error => logImageError(error),
+});
+const app = buildApp({
+  pool, origin: config.origin, secureCookies: config.secureCookies, logger: true, imageStore,
+  analysis: { adminUserIds: config.analysisAdminUserIds, generate: () => runAnalysis(santoDomingoDate(new Date())) },
+});
+logImageError = error => app.log.error({ errorName: error instanceof Error ? error.name : 'unknown' }, 'Scenario image generation failed');
+// Prepara el historial antes de que el scheduler intente publicar el informe.
+try {
+  await migrate(pool);
+} catch (error) {
+  const code = (error as { code?: string })?.code;
+  app.log.error({ code: code ?? 'MIGRATION_FAILED' }, 'No se pudieron aplicar las migraciones; revisa PostgreSQL y ejecuta npm run db:migrate.');
+}
 const analysisScheduler = startDailyAnalysisScheduler({
-  run: date => runDailyAnalysis(date, {
-    repository: analysisRepository,
-    marketData,
-    generateReport: gemini ? input => gemini.generateReport(input) : undefined,
-    model: config.geminiModel,
-  }),
+  run: runAnalysis,
   onError: error => app.log.error(
     { errorName: error instanceof Error ? error.name : 'unknown' },
     'Daily XAUUSD analysis execution failed',

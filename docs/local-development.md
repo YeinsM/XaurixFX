@@ -1,11 +1,35 @@
 # Entorno local
 
 Checkout de trabajo: C:/Users/Home/Desktop/TechBrains/Xaurix.
-Puerto web 5173; API 4000; PostgreSQL aislado 55439, ligado a 127.0.0.1.
-El servidor PostgreSQL instalado en otros puertos no se modifica.
-Las credenciales viven solo en backend/.env y quedan ignoradas por Git.
+Puerto web 5173; API 4000; PostgreSQL Docker 55440, ligado a 127.0.0.1.
+El clúster nativo anterior usa el puerto 55439.
 
-## PostgreSQL de esta máquina
+## PostgreSQL en Docker
+
+Desde la raíz del proyecto, con Docker Desktop iniciado en modo Linux:
+
+```powershell
+docker compose up -d --wait postgres
+docker compose ps postgres
+```
+
+Al inicializar el volumen por primera vez se crean `xaurix` y `xaurix_test`.
+Copia las dos URL de `backend/.env.example` a `backend/.env`, conservando el
+resto de las variables. Ejecuta `npm run db:migrate` y reinicia el backend.
+Comprueba `http://127.0.0.1:4000/api/health` y ejecuta `npm run test:integration`.
+
+El volumen `xaurixfx_postgres-data` conserva los datos al parar el contenedor.
+Para pausarlo, usa `docker compose stop postgres`. Este volumen empieza con
+bases nuevas. Si se necesita el historial nativo, respáldalo con `pg_dump`
+y restáuralo con `pg_restore` antes de cambiar el backend al puerto 55440.
+
+El ejemplo incluye una contraseña exclusiva para desarrollo local. Para elegir
+otra antes de inicializar el volumen, define `XAURIX_POSTGRES_PASSWORD` en el
+`.env` ignorado de la raíz y usa el valor codificado para URL en ambas cadenas
+de `backend/.env`. Un volumen ya inicializado requiere cambiar la contraseña
+del rol en PostgreSQL y actualizar ambas configuraciones.
+
+## Clúster PostgreSQL nativo anterior
 
 Binarios: C:/Program Files/PostgreSQL/18/bin.
 Datos: .local/postgres dentro del checkout; no versionar ese directorio.

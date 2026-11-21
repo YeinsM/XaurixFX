@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Al comprar puedes adjuntar dos órdenes de salida: un stop-loss y un take-profit.
+
+2
+00:00:09,000 --> 00:00:14,500
+Están vinculadas (OCO): cuando una se ejecuta, la otra se cancela.
+
+3
+00:00:14,500 --> 00:00:22,000
+Escenario A: el precio alcanza el take-profit. Cierras con ganancia y el stop se cancela.
+
+4
+00:00:22,000 --> 00:00:29,500
+Escenario B: el precio cae al stop. Cierras con la pérdida prevista y el take-profit se cancela.
+
+5
+00:00:29,500 --> 00:00:35,500
+Arriesgas 8 para buscar 16: una relación 1:2 decidida antes de entrar.
+

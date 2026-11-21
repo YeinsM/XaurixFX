@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Hay niveles donde el precio se frena una y otra vez.
+
+2
+00:00:09,000 --> 00:00:15,000
+Soporte: zona donde las caídas se detuvieron porque aparecieron compradores.
+
+3
+00:00:15,000 --> 00:00:20,500
+Resistencia: zona donde las subidas se frenaron por la presión vendedora.
+
+4
+00:00:20,500 --> 00:00:26,500
+Son zonas, no líneas exactas: las mechas pueden perforarlas un poco.
+
+5
+00:00:26,500 --> 00:00:34,000
+Cuando una resistencia se rompe, a menudo pasa a funcionar como soporte.
+

@@ -1,0 +1,480 @@
+{
+ "levels": [
+  {
+   "level": 1,
+   "name": "Trading desde cero",
+   "folder": "nivel-1-trading-desde-cero",
+   "free": true,
+   "priceUsdt": null,
+   "manual": null,
+   "capsules": [
+    {
+     "id": "1.2-a",
+     "title": "Subyacente, referencia e instrumento",
+     "topic": "1.2 · Activo, índice e instrumento",
+     "objective": "Separar lo que se analiza (subyacente) de lo que realmente se negocia (instrumento).",
+     "durationSec": 44,
+     "narrated": true,
+     "video": "1.2-a-subyacente-referencia-instrumento.mp4",
+     "subtitles": "1.2-a-subyacente-referencia-instrumento.srt",
+     "pdf": "1.2-a-subyacente-referencia-instrumento.pdf"
+    },
+    {
+     "id": "1.3-a",
+     "title": "Bid, ask y spread",
+     "topic": "1.3 · Cómo se forma el precio",
+     "objective": "Leer los dos precios de una cotización y entender el spread como costo de entrada.",
+     "durationSec": 39,
+     "narrated": true,
+     "video": "1.3-a-bid-ask-spread.mp4",
+     "subtitles": "1.3-a-bid-ask-spread.srt",
+     "pdf": "1.3-a-bid-ask-spread.pdf"
+    },
+    {
+     "id": "1.4-a",
+     "title": "Largo frente a corto",
+     "topic": "1.4 · Posiciones largas y cortas",
+     "objective": "Comparar el efecto de un mismo movimiento sobre una posición larga y una corta, en bruto y en neto.",
+     "durationSec": 56,
+     "narrated": true,
+     "video": "1.4-a-largo-frente-a-corto.mp4",
+     "subtitles": "1.4-a-largo-frente-a-corto.srt",
+     "pdf": "1.4-a-largo-frente-a-corto.pdf"
+    },
+    {
+     "id": "1.4-b",
+     "title": "Nocional y apalancamiento",
+     "topic": "1.4 · Posiciones largas y cortas",
+     "objective": "Distinguir capital y nocional y ver cómo el apalancamiento multiplica el resultado en ambos sentidos.",
+     "durationSec": 57,
+     "narrated": true,
+     "video": "1.4-b-nocional-y-apalancamiento.mp4",
+     "subtitles": "1.4-b-nocional-y-apalancamiento.srt",
+     "pdf": "1.4-b-nocional-y-apalancamiento.pdf"
+    }
+   ]
+  },
+  {
+   "level": 2,
+   "name": "Plataformas y ejecución",
+   "folder": "nivel-2-plataformas-y-ejecucion",
+   "free": true,
+   "priceUsdt": null,
+   "manual": null,
+   "capsules": [
+    {
+     "id": "2.2-a",
+     "title": "Market, limit y stop: dónde va cada orden",
+     "topic": "2.2 · Market, limit, stop y stop-limit",
+     "objective": "Ubicar cada tipo de orden respecto al precio y saber cuándo se activa.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "2.2-a-market-limit-stop.mp4",
+     "subtitles": "2.2-a-market-limit-stop.srt",
+     "pdf": "2.2-a-market-limit-stop.pdf"
+    },
+    {
+     "id": "2.2-b",
+     "title": "Stop-loss y take-profit vinculados",
+     "topic": "2.2 · Market, limit, stop y stop-limit",
+     "objective": "Configurar SL y TP como órdenes vinculadas y ver qué pasa con cada una cuando la otra se ejecuta.",
+     "durationSec": 40,
+     "narrated": true,
+     "video": "2.2-b-stop-loss-y-take-profit-oco.mp4",
+     "subtitles": "2.2-b-stop-loss-y-take-profit-oco.srt",
+     "pdf": "2.2-b-stop-loss-y-take-profit-oco.pdf"
+    },
+    {
+     "id": "2.3-a",
+     "title": "Del resultado bruto al neto",
+     "topic": "2.3 · Del beneficio bruto al neto",
+     "objective": "Descontar spread, comisión, deslizamiento y financiación del resultado que muestra el gráfico.",
+     "durationSec": 37,
+     "narrated": true,
+     "video": "2.3-a-del-bruto-al-neto.mp4",
+     "subtitles": "2.3-a-del-bruto-al-neto.srt",
+     "pdf": "2.3-a-del-bruto-al-neto.pdf"
+    },
+    {
+     "id": "2.4-a",
+     "title": "Ejecución parcial y precio promedio",
+     "topic": "2.4 · Ejecuciones parciales y condiciones",
+     "objective": "Entender por qué una orden puede llenarse por partes y calcular su precio promedio.",
+     "durationSec": 35,
+     "narrated": true,
+     "video": "2.4-a-ejecucion-parcial-precio-promedio.mp4",
+     "subtitles": "2.4-a-ejecucion-parcial-precio-promedio.srt",
+     "pdf": "2.4-a-ejecucion-parcial-precio-promedio.pdf"
+    }
+   ]
+  },
+  {
+   "level": 3,
+   "name": "Análisis técnico, fundamental y macroeconómico",
+   "folder": "nivel-3-analisis-tecnico-fundamental-macro",
+   "free": false,
+   "priceUsdt": null,
+   "manual": null,
+   "capsules": [
+    {
+     "id": "3.1-a",
+     "title": "Soporte y resistencia",
+     "topic": "3.1 · Velas, tendencia y rango",
+     "objective": "Identificar soportes y resistencias como zonas y reconocer el cambio de rol tras una ruptura.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "3.1-a-soporte-y-resistencia.mp4",
+     "subtitles": "3.1-a-soporte-y-resistencia.srt",
+     "pdf": "3.1-a-soporte-y-resistencia.pdf"
+    },
+    {
+     "id": "3.1-b",
+     "title": "Rompimiento frente a falso rompimiento",
+     "topic": "3.1 · Velas, tendencia y rango",
+     "objective": "Distinguir una ruptura confirmada por cierre de un falso rompimiento.",
+     "durationSec": 34,
+     "narrated": true,
+     "video": "3.1-b-rompimiento-y-falso-rompimiento.mp4",
+     "subtitles": "3.1-b-rompimiento-y-falso-rompimiento.srt",
+     "pdf": "3.1-b-rompimiento-y-falso-rompimiento.pdf"
+    },
+    {
+     "id": "3.1-c",
+     "title": "Tendencia, rango y dos temporalidades",
+     "topic": "3.1 · Velas, tendencia y rango",
+     "objective": "Reconocer tendencia y rango por máximos y mínimos, y leer primero la temporalidad mayor.",
+     "durationSec": 41,
+     "narrated": true,
+     "video": "3.1-c-tendencia-rango-dos-temporalidades.mp4",
+     "subtitles": "3.1-c-tendencia-rango-dos-temporalidades.srt",
+     "pdf": "3.1-c-tendencia-rango-dos-temporalidades.pdf"
+    },
+    {
+     "id": "3.2-a",
+     "title": "Media móvil y RSI: qué miden",
+     "topic": "3.2 · Qué aporta cada indicador",
+     "objective": "Saber qué calcula una media móvil y el RSI, su retraso y por qué no son señales automáticas.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "3.2-a-media-movil-y-rsi.mp4",
+     "subtitles": "3.2-a-media-movil-y-rsi.srt",
+     "pdf": "3.2-a-media-movil-y-rsi.pdf"
+    },
+    {
+     "id": "3.2-b",
+     "title": "ATR: medir la volatilidad",
+     "topic": "3.2 · Qué aporta cada indicador",
+     "objective": "Usar el ATR para medir cuánto se mueve el precio y adaptar la distancia del stop.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "3.2-b-atr-volatilidad.mp4",
+     "subtitles": "3.2-b-atr-volatilidad.srt",
+     "pdf": "3.2-b-atr-volatilidad.pdf"
+    },
+    {
+     "id": "3.4-a",
+     "title": "Tres escenarios para XAUUSD",
+     "topic": "3.4 · Tres escenarios para XAUUSD",
+     "objective": "Formular escenarios alcista, bajista y lateral con confirmación, invalidación y motivos para abstenerse.",
+     "durationSec": 44,
+     "narrated": true,
+     "video": "3.4-a-tres-escenarios-xauusd.mp4",
+     "subtitles": "3.4-a-tres-escenarios-xauusd.srt",
+     "pdf": "3.4-a-tres-escenarios-xauusd.pdf"
+    }
+   ]
+  },
+  {
+   "level": 4,
+   "name": "Gestión de riesgo y psicología",
+   "folder": "nivel-4-riesgo-y-psicologia",
+   "free": false,
+   "priceUsdt": null,
+   "manual": null,
+   "capsules": [
+    {
+     "id": "4.1-b",
+     "title": "Cuando el precio salta tu stop",
+     "topic": "4.1 · Calcula el tamaño de la posición",
+     "objective": "Ver por qué un gap puede ejecutar el stop peor que lo planeado y cómo incluirlo en el riesgo.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "4.1-b-gap-a-traves-del-stop.mp4",
+     "subtitles": "4.1-b-gap-a-traves-del-stop.srt",
+     "pdf": "4.1-b-gap-a-traves-del-stop.pdf"
+    },
+    {
+     "id": "4.2-a",
+     "title": "Drawdown: caer es más fácil que recuperar",
+     "topic": "4.2 · Drawdown y exposición acumulada",
+     "objective": "Medir el drawdown desde máximos y entender la asimetría entre pérdida y recuperación.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "4.2-a-drawdown-y-recuperacion.mp4",
+     "subtitles": "4.2-a-drawdown-y-recuperacion.srt",
+     "pdf": "4.2-a-drawdown-y-recuperacion.pdf"
+    },
+    {
+     "id": "4.3-a",
+     "title": "Tasa de acierto y esperanza",
+     "topic": "4.3 · Tasa de acierto y esperanza matemática",
+     "objective": "Calcular la esperanza en múltiplos de R y ver por qué la tasa de acierto sola no basta.",
+     "durationSec": 44,
+     "narrated": true,
+     "video": "4.3-a-tasa-de-acierto-y-esperanza.mp4",
+     "subtitles": "4.3-a-tasa-de-acierto-y-esperanza.srt",
+     "pdf": "4.3-a-tasa-de-acierto-y-esperanza.pdf"
+    },
+    {
+     "id": "4.4-a",
+     "title": "Mover el stop: cómo crece una pérdida",
+     "topic": "4.4 · La decisión antes del impulso",
+     "objective": "Reconocer el desplazamiento del stop como sesgo y medir su costo en múltiplos de riesgo (R).",
+     "durationSec": 35,
+     "narrated": true,
+     "video": "4.4-a-no-muevas-el-stop.mp4",
+     "subtitles": "4.4-a-no-muevas-el-stop.srt",
+     "pdf": "4.4-a-no-muevas-el-stop.pdf"
+    }
+   ]
+  },
+  {
+   "level": 5,
+   "name": "Diseño de estrategias y plan de trading",
+   "folder": "nivel-5-estrategias-y-plan",
+   "free": false,
+   "priceUsdt": null,
+   "manual": "manual-nivel-5.pdf",
+   "capsules": [
+    {
+     "id": "5.1-a",
+     "title": "Scalping, intradía, swing y posición",
+     "topic": "5.1 · Scalping, intradía, swing y posición",
+     "objective": "Comparar horizontes por frecuencia, peso de los costos, tiempo de pantalla y exposición fuera de sesión.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "5.1-a-horizontes-de-operacion.mp4",
+     "subtitles": "5.1-a-horizontes-de-operacion.srt",
+     "pdf": "5.1-a-horizontes-de-operacion.pdf"
+    },
+    {
+     "id": "5.2-a",
+     "title": "Tendencia, ruptura y reversión a la media",
+     "topic": "5.2 · Tres ideas para contextos distintos",
+     "objective": "Asociar cada familia de estrategia a su régimen de mercado y a su forma típica de fallar.",
+     "durationSec": 32,
+     "narrated": true,
+     "video": "5.2-a-tres-familias-de-estrategia.mp4",
+     "subtitles": "5.2-a-tres-familias-de-estrategia.srt",
+     "pdf": "5.2-a-tres-familias-de-estrategia.pdf"
+    },
+    {
+     "id": "5.3-a",
+     "title": "De una idea a reglas que otro pueda repetir",
+     "topic": "5.3 · Convierte una idea en reglas",
+     "objective": "Convertir una idea vaga en una lista de reglas completa y comprobable.",
+     "durationSec": 39,
+     "narrated": true,
+     "video": "5.3-a-de-idea-a-reglas.mp4",
+     "subtitles": "5.3-a-de-idea-a-reglas.srt",
+     "pdf": "5.3-a-de-idea-a-reglas.pdf"
+    }
+   ]
+  },
+  {
+   "level": 6,
+   "name": "Especializaciones por mercado",
+   "folder": "nivel-6-especializaciones",
+   "free": false,
+   "priceUsdt": null,
+   "manual": "manual-nivel-6.pdf",
+   "capsules": [
+    {
+     "id": "6.1-a",
+     "title": "ETF frente a índice: tracking error",
+     "topic": "6.1.3 · Qué sigue un ETF y cuánto se desvía",
+     "objective": "Distinguir diferencia de seguimiento y tracking error comparando un fondo con su índice.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "6.1-a-tracking-error-etf.mp4",
+     "subtitles": "6.1-a-tracking-error-etf.srt",
+     "pdf": "6.1-a-tracking-error-etf.pdf"
+    },
+    {
+     "id": "6.2-a",
+     "title": "Índice ponderado: quién lo mueve",
+     "topic": "6.2.1 · Cómo se mueve un índice ponderado",
+     "objective": "Calcular contribuciones por peso y ver por qué un índice puede subir con la mayoría de componentes a la baja.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "6.2-a-indice-ponderado.mp4",
+     "subtitles": "6.2-a-indice-ponderado.srt",
+     "pdf": "6.2-a-indice-ponderado.pdf"
+    },
+    {
+     "id": "6.3-a",
+     "title": "Pip, lote y valor del pip",
+     "topic": "6.3.1 · Divisa base, cotizada, pip y lote",
+     "objective": "Calcular un movimiento en pips y convertirlo en dinero según el tamaño del lote.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "6.3-a-pip-y-lote.mp4",
+     "subtitles": "6.3-a-pip-y-lote.srt",
+     "pdf": "6.3-a-pip-y-lote.pdf"
+    },
+    {
+     "id": "6.4-a",
+     "title": "Perpetuo apalancado: dónde está la liquidación",
+     "topic": "6.4.2 · Perpetuos, funding y liquidación",
+     "objective": "Ubicar el precio de liquidación de un perpetuo apalancado y compararlo con mantener BTC al contado.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "6.4-a-perpetuo-y-liquidacion.mp4",
+     "subtitles": "6.4-a-perpetuo-y-liquidacion.srt",
+     "pdf": "6.4-a-perpetuo-y-liquidacion.pdf"
+    },
+    {
+     "id": "6.5-a",
+     "title": "Tick, multiplicador y ajuste diario",
+     "topic": "6.5.1 · Puntos, ticks y multiplicador",
+     "objective": "Pasar de puntos a dinero con la ficha del contrato y seguir el ajuste diario del margen.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "6.5-a-tick-multiplicador-ajuste-diario.mp4",
+     "subtitles": "6.5-a-tick-multiplicador-ajuste-diario.srt",
+     "pdf": "6.5-a-tick-multiplicador-ajuste-diario.pdf"
+    },
+    {
+     "id": "6.6-a",
+     "title": "Contango y backwardation",
+     "topic": "6.6.2 · Cómo leer una curva de futuros",
+     "objective": "Leer la pendiente de una curva de futuros y entender el efecto del rollover.",
+     "durationSec": 32,
+     "narrated": true,
+     "video": "6.6-a-contango-backwardation.mp4",
+     "subtitles": "6.6-a-contango-backwardation.srt",
+     "pdf": "6.6-a-contango-backwardation.pdf"
+    },
+    {
+     "id": "6.7-a",
+     "title": "Perfil de una call y una put al vencimiento",
+     "topic": "6.7.1 · Call, put, strike y prima",
+     "objective": "Dibujar el resultado al vencimiento de una call y una put compradas y ubicar su punto de equilibrio.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "6.7-a-perfil-call-put.mp4",
+     "subtitles": "6.7-a-perfil-call-put.srt",
+     "pdf": "6.7-a-perfil-call-put.pdf"
+    },
+    {
+     "id": "6.8-a",
+     "title": "Bonos: cuando sube el rendimiento, baja el precio",
+     "topic": "6.8.1 · Bonos: precio frente a rendimiento",
+     "objective": "Ver la relación inversa y convexa entre precio y rendimiento de un bono.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "6.8-a-precio-y-rendimiento-del-bono.mp4",
+     "subtitles": "6.8-a-precio-y-rendimiento-del-bono.srt",
+     "pdf": "6.8-a-precio-y-rendimiento-del-bono.pdf"
+    }
+   ]
+  },
+  {
+   "level": 7,
+   "name": "Backtesting avanzado y gestión de cartera",
+   "folder": "nivel-7-backtesting-y-cartera",
+   "free": false,
+   "priceUsdt": null,
+   "manual": "manual-nivel-7.pdf",
+   "capsules": [
+    {
+     "id": "7.1-a",
+     "title": "Sesgo de supervivencia",
+     "topic": "7.1 · Tres sesgos que inflan un backtest",
+     "objective": "Ver cómo excluir activos que desaparecieron infla el resultado de un backtest.",
+     "durationSec": 37,
+     "narrated": true,
+     "video": "7.1-a-sesgo-de-supervivencia.mp4",
+     "subtitles": "7.1-a-sesgo-de-supervivencia.srt",
+     "pdf": "7.1-a-sesgo-de-supervivencia.pdf"
+    },
+    {
+     "id": "7.1-b",
+     "title": "Sobreajuste: la curva demasiado perfecta",
+     "topic": "7.1 · Tres sesgos que inflan un backtest",
+     "objective": "Reconocer el sobreajuste por el contraste entre la muestra de ajuste y datos nuevos.",
+     "durationSec": 32,
+     "narrated": true,
+     "video": "7.1-b-sobreajuste.mp4",
+     "subtitles": "7.1-b-sobreajuste.srt",
+     "pdf": "7.1-b-sobreajuste.pdf"
+    },
+    {
+     "id": "7.2-a",
+     "title": "Validación walk-forward",
+     "topic": "7.2 · Validación cronológica de una estrategia",
+     "objective": "Entender la validación por ventanas móviles: ajustar en el pasado y evaluar en el tramo siguiente.",
+     "durationSec": 32,
+     "narrated": true,
+     "video": "7.2-a-walk-forward.mp4",
+     "subtitles": "7.2-a-walk-forward.srt",
+     "pdf": "7.2-a-walk-forward.pdf"
+    },
+    {
+     "id": "7.4-a",
+     "title": "Monte Carlo: el orden de las operaciones",
+     "topic": "7.4 · Cuando varias posiciones caen juntas",
+     "objective": "Usar remuestreos de la secuencia de operaciones para estimar drawdowns posibles.",
+     "durationSec": 32,
+     "narrated": true,
+     "video": "7.4-a-monte-carlo-de-secuencias.mp4",
+     "subtitles": "7.4-a-monte-carlo-de-secuencias.srt",
+     "pdf": "7.4-a-monte-carlo-de-secuencias.pdf"
+    }
+   ]
+  },
+  {
+   "level": 8,
+   "name": "Trading sistemático, automatización y proyecto final",
+   "folder": "nivel-8-sistematico-y-proyecto-final",
+   "free": false,
+   "priceUsdt": null,
+   "manual": "manual-nivel-8.pdf",
+   "capsules": [
+    {
+     "id": "8.1-a",
+     "title": "Una orden de mercado contra el libro",
+     "topic": "8.1 · Qué ocurre dentro del libro de órdenes",
+     "objective": "Ver cómo una orden agresiva grande consume varios niveles y empeora el precio medio.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "8.1-a-orden-de-mercado-contra-el-libro.mp4",
+     "subtitles": "8.1-a-orden-de-mercado-contra-el-libro.srt",
+     "pdf": "8.1-a-orden-de-mercado-contra-el-libro.pdf"
+    },
+    {
+     "id": "8.2-a",
+     "title": "De la señal a la posición: reconciliar",
+     "topic": "8.2 · De señal a ejecución en demo",
+     "objective": "Seguir una señal hasta la posición con identificadores y detectar duplicados y descuadres.",
+     "durationSec": 36,
+     "narrated": true,
+     "video": "8.2-a-de-senal-a-ejecucion.mp4",
+     "subtitles": "8.2-a-de-senal-a-ejecucion.srt",
+     "pdf": "8.2-a-de-senal-a-ejecucion.pdf"
+    },
+    {
+     "id": "8.4-a",
+     "title": "Balance frente a equity: lo que oculta un historial",
+     "topic": "8.4 · Cómo leer un historial de terceros",
+     "objective": "Detectar pérdidas flotantes ocultas en un historial que solo muestra operaciones cerradas.",
+     "durationSec": 38,
+     "narrated": true,
+     "video": "8.4-a-historial-publicado-vs-replicable.mp4",
+     "subtitles": "8.4-a-historial-publicado-vs-replicable.srt",
+     "pdf": "8.4-a-historial-publicado-vs-replicable.pdf"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+En un índice ponderado, cada componente pesa distinto.
+
+2
+00:00:08,500 --> 00:00:14,000
+Hoy solo A sube; los otros cuatro bajan.
+
+3
+00:00:14,000 --> 00:00:20,500
+Contribución de cada uno = peso × variación. A aporta +0,90 puntos porcentuales.
+
+4
+00:00:20,500 --> 00:00:27,000
+El índice sube un 0,05 % aunque la mayoría baja: eso es concentración.
+
+5
+00:00:27,000 --> 00:00:32,000
+Por eso conviene mirar la amplitud: cuántos componentes acompañan el movimiento.
+

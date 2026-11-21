@@ -75,7 +75,13 @@ export async function saveAnalysisRecord(pool: Pool, record: AnalysisRecord): Pr
     `INSERT INTO market_analyses (
       analysis_date, status, report, sources, market_source, reference_price,
       reference_at, generated_at, model, prompt_version, error_code
-    ) VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6, $7, $8, $9, $10, $11)`,
+    ) VALUES ($1, $2, $3::jsonb, $4::jsonb, $5, $6, $7, $8, $9, $10, $11)
+    ON CONFLICT (analysis_date) DO UPDATE SET
+      status = EXCLUDED.status, report = EXCLUDED.report, sources = EXCLUDED.sources,
+      market_source = EXCLUDED.market_source, reference_price = EXCLUDED.reference_price,
+      reference_at = EXCLUDED.reference_at, generated_at = EXCLUDED.generated_at,
+      model = EXCLUDED.model, prompt_version = EXCLUDED.prompt_version,
+      error_code = EXCLUDED.error_code, updated_at = now()`,
     [
       record.analysisDate,
       record.status,
@@ -148,6 +154,17 @@ function mapAnalysisRecord(row: Record<string, unknown>): AnalysisRecord {
 
 function parseReport(value: unknown): NonNullable<AnalysisRecord['report']> {
   const parsed = parseJsonObject(value, 'report');
+  // Los informes nuevos conservan texto libre; los históricos mantienen su estructura.
+  if (typeof parsed.rawText === 'string') {
+    const grounding = isRecord(parsed.grounding) && Array.isArray(parsed.grounding.citations)
+      && typeof parsed.grounding.searchSuggestionsHtml === 'string'
+      ? { citations: parsed.grounding.citations.map(parseCalendarCitation), searchSuggestionsHtml: parsed.grounding.searchSuggestionsHtml }
+      : undefined;
+    return {
+      rawText: parsed.rawText, macro: '', confluence: '', entryPlan: '', scenarios: [], grounding,
+      finishReason: typeof parsed.finishReason === 'string' ? parsed.finishReason : undefined,
+    };
+  }
   if (typeof parsed.macro !== 'string' || typeof parsed.confluence !== 'string' ||
     typeof parsed.entryPlan !== 'string' || !Array.isArray(parsed.scenarios) || parsed.scenarios.length !== 2) {
     throw new Error('Stored analysis report is invalid');
@@ -173,6 +190,7 @@ function parseSources(value: unknown): AnalysisSources {
     throw new Error('Stored analysis sources are invalid');
   }
   return {
+    ...(typeof parsed.errorMessage === 'string' ? { errorMessage: parsed.errorMessage } : {}),
     market: parsed.market.map(parseMarketSource),
     calendar: {
       status: parsed.calendar.status,

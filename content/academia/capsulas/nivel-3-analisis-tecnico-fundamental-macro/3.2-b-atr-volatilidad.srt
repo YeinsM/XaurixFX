@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+El rango verdadero mide cuánto recorrió una vela, incluido cualquier hueco con el cierre anterior.
+
+2
+00:00:09,000 --> 00:00:14,000
+El ATR promedia los últimos 14 rangos verdaderos.
+
+3
+00:00:14,000 --> 00:00:20,000
+Cuando el mercado se agita (por ejemplo, tras un dato), el ATR sube.
+
+4
+00:00:20,000 --> 00:00:26,500
+Un stop basado en ATR se aleja cuando hay más volatilidad y se acerca cuando hay calma.
+
+5
+00:00:26,500 --> 00:00:32,000
+El ATR no indica dirección: solo cuánto se mueve el precio.
+

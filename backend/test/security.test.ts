@@ -21,3 +21,10 @@ test('session credentials have 256 bits of entropy and only their digest is stor
   assert.notEqual(a.token, a.hash);
   assert.equal(hashSession(a.token), a.hash);
 });
+
+test('loopback origins accept localhost and 127.0.0.1 on the same port only', async () => {
+  const { loopbackOrigins } = await import('../src/app.ts');
+  assert.deepEqual(loopbackOrigins('http://localhost:5173'), ['http://localhost:5173', 'http://127.0.0.1:5173']);
+  assert.deepEqual(loopbackOrigins('http://127.0.0.1:5173'), ['http://127.0.0.1:5173', 'http://localhost:5173']);
+  assert.deepEqual(loopbackOrigins('https://app.example.com'), ['https://app.example.com']);
+});

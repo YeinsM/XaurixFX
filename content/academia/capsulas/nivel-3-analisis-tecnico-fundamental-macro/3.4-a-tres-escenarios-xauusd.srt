@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:09,000
+Partimos de una fecha concreta y usamos solo la información disponible ese día.
+
+2
+00:00:09,000 --> 00:00:15,500
+Alcista: se confirma con un cierre sobre 2.400 y se invalida bajo 2.380.
+
+3
+00:00:15,500 --> 00:00:22,000
+Bajista: se confirma con un cierre bajo 2.370 y se invalida sobre 2.390.
+
+4
+00:00:22,000 --> 00:00:27,500
+Lateral: el precio sigue entre 2.370 y 2.400 sin cierres fuera.
+
+5
+00:00:27,500 --> 00:00:33,500
+Abstenerse también es un escenario: dato de alto impacto inminente o spread anormal.
+
+6
+00:00:33,500 --> 00:00:40,000
+Guarda la fecha y compara después con lo que pasó, sin reescribir la hipótesis.
+

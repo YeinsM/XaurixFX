@@ -1,0 +1,26 @@
+name: xaurixfx
+
+services:
+  postgres:
+    image: postgres:18
+    # This database is for local development and only listens on loopback.
+    environment:
+      POSTGRES_DB: xaurix
+      POSTGRES_USER: xaurix
+      POSTGRES_PASSWORD: ${XAURIX_POSTGRES_PASSWORD:-xaurix_local_only}
+    ports:
+      - '127.0.0.1:55440:5432'
+    volumes:
+      # PostgreSQL 18 creates its versioned data directory under this mount.
+      - postgres-data:/var/lib/postgresql
+      - ./backend/docker/init-test-db.sql:/docker-entrypoint-initdb.d/10-test-db.sql:ro
+    healthcheck:
+      # TCP probes skip the temporary socket-only server used during initialization.
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+
+volumes:
+  postgres-data:

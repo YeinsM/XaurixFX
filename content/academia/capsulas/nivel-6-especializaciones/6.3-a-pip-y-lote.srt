@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+En EUR/USD el euro es la divisa base y el dólar, la cotizada.
+
+2
+00:00:08,500 --> 00:00:14,000
+De 1,0850 a 1,0880 el precio sube 30 pips.
+
+3
+00:00:14,000 --> 00:00:20,500
+El valor de cada pip depende del tamaño de la posición.
+
+4
+00:00:20,500 --> 00:00:26,500
+Los mismos 30 pips son 300, 30 o 3 USD según el lote.
+
+5
+00:00:26,500 --> 00:00:32,500
+Si la cuenta está en otra moneda, el resultado se convierte al tipo de cambio.
+

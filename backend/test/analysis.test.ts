@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import Fastify from 'fastify';
+import cron from 'node-cron';
+import { buildApp } from '../src/app.js';
+import type { Pool } from 'pg';
+import { GenerateContentResponse } from '@google/genai';
+import { findAnalysisByDate, saveAnalysisRecord } from '../src/analysisRepository.js';
 import { calculateEma, calculateMomentum, calculateRsi } from '../src/analysis/indicators.js';
 import { createGeminiAnalysisClient, GeminiAnalysisError } from '../src/analysis/gemini.js';
 import { createMarketDataClient, MarketDataError } from '../src/analysis/marketData.js';
@@ -8,7 +13,7 @@ import { calculateScenarioMetrics, validateScenario } from '../src/analysis/scen
 import { runDailyAnalysis } from '../src/analysis/service.js';
 import { registerAnalysisScheduler, startDailyAnalysisScheduler } from '../src/analysis/scheduler.js';
 import { readConfig } from '../src/config.js';
-import type { AnalysisInput, AnalysisRecord, AnalysisReport, MarketInterval, MarketSnapshot } from '../src/analysis/types.js';
+import type { AnalysisRecord, AnalysisReport } from '../src/analysis/types.js';
 
 const referenceTime = new Date('2026-11-17T12:00:00Z');
 const testApiKey = 'test-secret-not-for-logs';
@@ -33,30 +38,6 @@ function barResponse(interval: string) {
     ],
   }), { status: 200, headers: { 'content-type': 'application/json' } });
 }
-
-const analysisInput: AnalysisInput = {
-  analysisTime: '2026-11-17T13:00:00Z',
-  snapshot: {
-    symbol: 'XAU-USD-SPOT',
-    spot: {
-      price: '2000.00', isStale: false, computedAt: '2026-11-17T12:00:00Z',
-      source: 'GoldPrice.dev', sources: [],
-    },
-    bars: ['5m', '15m', '1h', '4h'].map(interval => ({
-      interval: interval as '5m' | '15m' | '1h' | '4h',
-      bars: [{
-        barStart: '2026-11-17T11:55:00Z', open: '1999', high: '2001',
-        low: '1998', close: '2000', volume: null, isClosed: true,
-      }],
-    })),
-  },
-  indicators: ['5m', '15m', '1h', '4h'].map(interval => ({
-    interval: interval as '5m' | '15m' | '1h' | '4h',
-    ema20: 2000, ema50: 1998, ema200: 1990, rsi14: 52, momentum14: 101,
-  })),
-  actionableData: true,
-  barsAreCurrent: true,
-};
 
 function validAnalysisReport(): AnalysisReport {
   return {
@@ -88,47 +69,6 @@ function validAnalysisReport(): AnalysisReport {
   };
 }
 
-function calendarResponse(text = 'Próximo evento relevante: dato de inflación de EE. UU.') {
-  return {
-    output_text: text,
-    steps: [{
-      type: 'model_output',
-      content: [{
-        type: 'text',
-        text,
-        annotations: [{ type: 'url_citation', url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve' }],
-      }],
-    }],
-  };
-}
-
-function completeSnapshot(options: { stale?: boolean; bars?: number; omit?: MarketInterval } = {}): MarketSnapshot {
-  const now = referenceTime.getTime();
-  const intervals: Array<[MarketInterval, number]> = [
-    ['5m', 5 * 60_000], ['15m', 15 * 60_000], ['1h', 60 * 60_000], ['4h', 4 * 60 * 60_000],
-  ];
-  const length = options.bars ?? 200;
-  return {
-    symbol: 'XAU-USD-SPOT',
-    spot: {
-      price: '2000.00', isStale: options.stale ?? false,
-      computedAt: referenceTime.toISOString(), source: 'GoldPrice.dev', sources: [],
-    },
-    bars: intervals.filter(([interval]) => interval !== options.omit).map(([interval, duration]) => ({
-      interval,
-      bars: Array.from({ length }, (_, index) => {
-        const close = 1900 + index / 10;
-        return {
-          barStart: new Date(now - (length - index) * duration).toISOString(),
-          open: close.toFixed(2), high: (close + 1).toFixed(2),
-          low: (close - 1).toFixed(2), close: close.toFixed(2),
-          volume: null, isClosed: true,
-        };
-      }),
-    })),
-  };
-}
-
 function dailyAnalysisRepository() {
   const records = new Map<string, AnalysisRecord>();
   return {
@@ -136,23 +76,6 @@ function dailyAnalysisRepository() {
     withDateLock: async <T>(_date: string, operation: () => Promise<T>) => operation(),
     findByDate: async (date: string) => records.get(date),
     save: async (record: AnalysisRecord) => { records.set(record.analysisDate, record); },
-  };
-}
-
-function geminiClient(responses: unknown[] | Error[]) {
-  const calls: Array<Record<string, unknown>> = [];
-  return {
-    calls,
-    client: {
-      interactions: {
-        create: async (request: Record<string, unknown>) => {
-          calls.push(request);
-          const response = responses.shift();
-          if (response instanceof Error) throw response;
-          return response;
-        },
-      },
-    },
   };
 }
 
@@ -324,300 +247,292 @@ test('readConfig exposes optional analysis credentials without requiring them', 
   assert.equal(withoutKeys.goldPriceApiKey, undefined);
 });
 
-test('Gemini grounds only the calendar request and analyzes supplied market data without search', async () => {
-  const fake = geminiClient([
-    calendarResponse(),
-    { output_text: JSON.stringify(validAnalysisReport()) },
-  ]);
-  const service = createGeminiAnalysisClient({
-    apiKey: testApiKey,
-    model: 'gemini-test',
-    client: fake.client,
-  });
-  const result = await service.generateReport(analysisInput);
-
-  assert.equal(fake.calls.length, 2);
-  assert.deepEqual(fake.calls[0]?.tools, [{ type: 'google_search' }]);
-  assert.equal(fake.calls[0]?.store, false);
-  assert.equal(fake.calls[1]?.tools, undefined);
-  assert.equal(fake.calls[1]?.store, false);
-  assert.match(String(fake.calls[0]?.input), /calendario/i);
-  assert.match(String(fake.calls[0]?.input), /9:00/);
-  assert.match(String(fake.calls[1]?.input), /GoldPrice\.dev/);
-  assert.match(String(fake.calls[1]?.input), /no busques.*cotizaciones/i);
-  assert.match(String(fake.calls[1]?.input), /precio de referencia/i);
-  assert.match(String(fake.calls[1]?.input), /no recibió capturas/i);
-  assert.match(String(fake.calls[1]?.input), /isStale.*no propongas niveles/i);
-  assert.match(String(fake.calls[1]?.input), /actionableData.*false.*dirección wait/i);
-  assert.match(String(fake.calls[1]?.input), /EMA 20/);
-  assert.equal(result.calendar.status, 'verified');
-  assert.deepEqual(result.calendar.citations, [{
-    url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve',
-  }]);
+test('Gemini sends one prompt with Search and preserves non-JSON response verbatim', async () => {
+  const calls: any[] = [];
+  const text = '## Análisis\nNo dispongo de velas M5 verificables.\n\n| A | B |\n|---|---|\n| 1 | 2 |';
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: {
+    models: { generateContent: async request => { calls.push(request); return { text } as any; } },
+  } });
+  const generated = await service.generateReport({ analysisTime: referenceTime.toISOString() });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].model, 'gemini-test');
+  assert.deepEqual(calls[0].config.tools, [{ googleSearch: {} }]);
+  assert.match(calls[0].contents, /H4, H1, M15 y M5/);
+  assert.match(calls[0].contents, /DOS ESCENARIOS/);
+  assert.equal(calls[0].config.responseSchema, undefined);
+  assert.equal(generated.report.rawText, text);
 });
 
-test('Gemini reports calendar unavailable without citations and still generates technical analysis', async () => {
-  const fake = geminiClient([
-    {
-      output_text: 'Evento de inflación no verificado.',
-      steps: [{ type: 'model_output', content: [{ type: 'text', text: 'Evento de inflación no verificado.' }] }],
-    },
-    { output_text: JSON.stringify(validAnalysisReport()) },
-  ]);
-  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
-  const result = await service.generateReport(analysisInput);
-  assert.equal(result.calendar.status, 'unavailable');
-  assert.deepEqual(result.calendar.citations, []);
-  assert.match(result.calendar.summary, /no se pudo verificar/i);
-  assert.doesNotMatch(String(fake.calls[1]?.input), /Evento de inflación no verificado/);
-  assert.equal(fake.calls.length, 2);
+test('Gemini returns the provider error without leaking the key and rejects empty output only', async () => {
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'test', client: {
+    models: { generateContent: async () => { throw new Error(`429 quota exceeded ${testApiKey}`); } },
+  } });
+  await assert.rejects(() => service.generateReport({ analysisTime: referenceTime.toISOString() }),
+    (error: unknown) => error instanceof GeminiAnalysisError && /429 quota exceeded/.test(error.message) && !error.message.includes(testApiKey));
+  const empty = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'test', client: {
+    models: { generateContent: async () => ({ text: '' } as any) },
+  } });
+  await assert.rejects(() => empty.generateReport({ analysisTime: referenceTime.toISOString() }),
+    (error: unknown) => error instanceof GeminiAnalysisError && error.code === 'invalid_report');
 });
 
-test('Gemini rejects malformed JSON, missing fields and raw HTML in report text', async () => {
-  const incomplete = { macro: 'Estructura', confluence: 'EMA' };
-  for (const output of ['{', JSON.stringify(incomplete), JSON.stringify({ ...validAnalysisReport(), macro: '<script>alert(1)</script>' })]) {
-    const fake = geminiClient([calendarResponse(), { output_text: output }]);
-    const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
-    await assert.rejects(service.generateReport(analysisInput), error =>
-      error instanceof GeminiAnalysisError && error.code === 'invalid_report');
-  }
+test('official SDK sends the documented host, API-key header and Google Search payload', async () => {
+  let requests = 0;
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-4-hydrogen', fetch: async (input, init) => {
+    requests++;
+    const url = new URL(String(input));
+    assert.equal(url.origin, 'https://generativelanguage.googleapis.com');
+    assert.equal(url.pathname, '/v1beta/models/gemini-4-hydrogen:generateContent');
+    assert.equal(url.searchParams.has('key'), false);
+    const headers = new Headers(init?.headers);
+    assert.equal(headers.get('x-goog-api-key'), testApiKey);
+    assert.equal(init?.method, 'POST');
+    const body = JSON.parse(String(init?.body));
+    assert.match(body.contents[0].parts[0].text, /XAUUSD/);
+    assert.ok(body.tools[0].googleSearch ?? body.tools[0].google_search);
+    assert.equal(body.generationConfig?.responseSchema, undefined);
+    return new Response(JSON.stringify({ candidates: [{
+      content: { role: 'model', parts: [{ text: 'Respuesta intacta' }] }, finishReason: 'STOP',
+      groundingMetadata: { groundingChunks: [{ web: { uri: 'https://www.federalreserve.gov/', title: 'Federal Reserve' } }],
+        searchEntryPoint: { renderedContent: '<div>Google Search</div>' } },
+    }] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  } });
+  const generated = await service.generateReport({ analysisTime: referenceTime.toISOString() });
+  assert.equal(requests, 1);
+  assert.equal(generated.report.rawText, 'Respuesta intacta');
+  assert.equal(generated.report.grounding?.citations[0]?.title, 'Federal Reserve');
+  assert.equal(generated.report.grounding?.searchSuggestionsHtml, '<div>Google Search</div>');
 });
 
-test('Gemini provider failures are explicit and do not expose credentials', async () => {
-  const fake = geminiClient([calendarResponse(), new Error(`provider rejected ${testApiKey}`)]);
-  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-test', client: fake.client });
-  await assert.rejects(service.generateReport(analysisInput), error =>
-    error instanceof GeminiAnalysisError && error.code === 'provider_error' && !error.message.includes(testApiKey));
+test('official SDK retries a transient 503 once and never retries a permanent 403', async () => {
+  let transientCalls = 0;
+  const transient = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-4-hydrogen', fetch: async () => {
+    transientCalls++;
+    if (transientCalls === 1) return new Response(JSON.stringify({ error: { code: 503, message: 'Unavailable', status: 'UNAVAILABLE' } }), { status: 503 });
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: 'Recuperado' }] }, finishReason: 'STOP' }] }), { status: 200 });
+  } });
+  assert.equal((await transient.generateReport({ analysisTime: referenceTime.toISOString() })).report.rawText, 'Recuperado');
+  assert.equal(transientCalls, 2);
+  let permanentCalls = 0;
+  const permanent = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'gemini-4-hydrogen', fetch: async () => {
+    permanentCalls++;
+    return new Response(JSON.stringify({ error: { code: 403, message: `Permission denied ${testApiKey}`, status: 'PERMISSION_DENIED' } }), { status: 403 });
+  } });
+  await assert.rejects(() => permanent.generateReport({ analysisTime: referenceTime.toISOString() }),
+    (error: unknown) => error instanceof GeminiAnalysisError && /403/.test(error.message) && !error.message.includes(testApiKey));
+  assert.equal(permanentCalls, 1);
 });
 
-test('daily analysis calculates indicators, publishes the report and attaches scenario metrics', async () => {
+test('network causes and empty-response reasons remain actionable without exposing keys', async () => {
+  const cause = Object.assign(new Error('getaddrinfo generativelanguage.googleapis.com'), { code: 'ENOTFOUND' });
+  const network = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'test', client: {
+    models: { generateContent: async () => { throw new Error('fetch failed', { cause }); } },
+  } });
+  await assert.rejects(() => network.generateReport({ analysisTime: referenceTime.toISOString() }), /ENOTFOUND/);
+  const response = new GenerateContentResponse();
+  response.promptFeedback = { blockReason: 'SAFETY' as any };
+  const blocked = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'test', client: {
+    models: { generateContent: async () => response },
+  } });
+  await assert.rejects(() => blocked.generateReport({ analysisTime: referenceTime.toISOString() }), /SAFETY/);
+});
+
+test('partial text is preserved when the provider reports a token limit', async () => {
+  const response = new GenerateContentResponse();
+  response.candidates = [{ content: { parts: [{ text: 'Texto parcial original' }] }, finishReason: 'MAX_TOKENS' as any }];
+  const service = createGeminiAnalysisClient({ apiKey: testApiKey, model: 'test', client: {
+    models: { generateContent: async () => response },
+  } });
+  const result = await service.generateReport({ analysisTime: referenceTime.toISOString() });
+  assert.equal(result.report.rawText, 'Texto parcial original');
+  assert.equal(result.report.finishReason, 'MAX_TOKENS');
+});
+
+test('daily analysis needs no market provider and never changes Gemini text', async () => {
   const repository = dailyAnalysisRepository();
-  let receivedInput: AnalysisInput | undefined;
-  const result = await runDailyAnalysis('2026-11-17', {
-    repository,
-    marketData: { fetchSnapshot: async () => completeSnapshot() },
-    generateReport: async input => {
-      receivedInput = input;
-      return { report: validAnalysisReport(), calendar: calendarResponseResult };
-    },
-    model: 'gemini-test',
-    clock: () => referenceTime,
-  });
-
-  assert.equal(result.status, 'published');
-  assert.equal(result.referencePrice, '2000.00');
-  assert.equal(receivedInput?.indicators.find(item => item.interval === '4h')?.ema200, 1909.95);
-  assert.equal(result.report?.scenarios[0].metrics?.entryReference, 2001);
-  assert.deepEqual(result.report?.scenarios[0].metrics?.rewardRisk, [1.8, 2.6, 3.4]);
-  assert.equal(result.sources.calendar.status, 'verified');
-});
-
-const calendarResponseResult = {
-  status: 'verified' as const,
-  summary: 'Próximo evento relevante.',
-  citations: [{ url: 'https://www.federalreserve.gov/calendar.htm', title: 'Federal Reserve' }],
-};
-
-test('missing credentials persist a sanitized failure without calling providers', async () => {
-  const repository = dailyAnalysisRepository();
-  const result = await runDailyAnalysis('2026-11-17', {
-    repository,
-    model: 'gemini-test',
-    clock: () => referenceTime,
-  });
-
-  assert.equal(result.status, 'failed');
-  assert.equal(result.errorCode, 'missing_api_key');
-});
-
-test('incomplete market data persists insufficient_data without generating levels', async () => {
-  const gappedSnapshot = completeSnapshot();
-  const m5Bars = gappedSnapshot.bars.find(item => item.interval === '5m')!.bars;
-  m5Bars[80]!.barStart = new Date(Date.parse(m5Bars[80]!.barStart) + 5 * 60_000).toISOString();
-  for (const snapshot of [
-    completeSnapshot({ omit: '5m' }),
-    completeSnapshot({ bars: 199 }),
-    gappedSnapshot,
-  ]) {
-    const repository = dailyAnalysisRepository();
-    let reportCalls = 0;
-    const result = await runDailyAnalysis('2026-11-17', {
-      repository,
-      marketData: { fetchSnapshot: async () => snapshot },
-      generateReport: async () => {
-        reportCalls++;
-        return { report: validAnalysisReport(), calendar: calendarResponseResult };
-      },
-      model: 'gemini-test',
-      clock: () => referenceTime,
-    });
-
-    assert.equal(result.status, 'insufficient_data');
-    assert.equal(reportCalls, 0);
-  }
-});
-
-test('stale bars keep historical context but never publish actionable scenario levels', async () => {
-  const staleBars = completeSnapshot();
-  const staleBarsSnapshot = completeSnapshot();
-  for (const bar of staleBarsSnapshot.bars.find(item => item.interval === '5m')!.bars) {
-    bar.barStart = new Date(Date.parse(bar.barStart) - 30 * 60_000).toISOString();
-  }
-  for (const timeframe of staleBars.bars) {
-    for (const bar of timeframe.bars) {
-      bar.barStart = new Date(Date.parse(bar.barStart) - 48 * 60 * 60_000).toISOString();
-    }
-  }
-  for (const snapshot of [staleBars, staleBarsSnapshot, completeSnapshot({ stale: true })]) {
-    const repository = dailyAnalysisRepository();
-    let actionableData = true;
-    const result = await runDailyAnalysis('2026-11-17', {
-      repository,
-      marketData: { fetchSnapshot: async () => snapshot },
-      generateReport: async input => {
-        actionableData = input.actionableData;
-        return { report: validAnalysisReport(), calendar: calendarResponseResult };
-      },
-      model: 'gemini-test',
-      clock: () => referenceTime,
-    });
-
-    assert.equal(result.status, 'published');
-    assert.equal(actionableData, false);
-    assert.ok(result.report?.scenarios.every(scenario =>
-      scenario.direction === 'wait' && scenario.entryLow === null && scenario.entryHigh === null &&
-      scenario.stopLoss === null && scenario.takeProfits.every(price => price === null)));
-    assert.match(result.report?.entryPlan ?? '', /datos no actuales/i);
-    const barSource = result.sources.market.find(source => source.displayName === 'Velas cerradas');
-    assert.equal(barSource?.isStale, snapshot === staleBars || snapshot === staleBarsSnapshot);
-  }
-});
-
-test('a provider quote newer than the fetch start is validated against post-fetch time', async () => {
-  const snapshot = completeSnapshot();
-  snapshot.spot.computedAt = '2026-11-17T12:00:00.500Z';
-  let clockCalls = 0;
-  const result = await runDailyAnalysis('2026-11-17', {
-    repository: dailyAnalysisRepository(),
-    marketData: { fetchSnapshot: async () => snapshot },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => new Date(referenceTime.getTime() + Math.max(0, clockCalls++) * 1000),
-  });
-  assert.equal(result.status, 'published');
-});
-
-test('non-transient provider errors fail once while transient errors retry with backoff', async () => {
-  const permanentRepository = dailyAnalysisRepository();
-  let permanentAttempts = 0;
-  const permanent = await runDailyAnalysis('2026-11-17', {
-    repository: permanentRepository,
-    marketData: {
-      fetchSnapshot: async () => {
-        permanentAttempts++;
-        throw new MarketDataError('provider_error', 'permanent request failure');
-      },
-    },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => referenceTime,
-    sleep: async () => {},
-  });
-  assert.equal(permanent.status, 'failed');
-  assert.equal(permanentAttempts, 1);
-
-  const forbiddenRepository = dailyAnalysisRepository();
-  let forbiddenAttempts = 0;
-  const forbidden = await runDailyAnalysis('2026-11-17', {
-    repository: forbiddenRepository,
-    marketData: {
-      fetchSnapshot: async () => {
-        forbiddenAttempts++;
-        throw new MarketDataError('provider_forbidden', 'plan does not allow bars');
-      },
-    },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => referenceTime,
-  });
-  assert.equal(forbidden.status, 'failed');
-  assert.equal(forbidden.errorCode, 'provider_forbidden');
-  assert.equal(forbiddenAttempts, 1);
-
-  const retryRepository = dailyAnalysisRepository();
-  let attempts = 0;
-  const delays: number[] = [];
-  const retried = await runDailyAnalysis('2026-11-17', {
-    repository: retryRepository,
-    marketData: {
-      fetchSnapshot: async () => {
-        attempts++;
-        if (attempts === 1) throw new MarketDataError('provider_unavailable', 'temporary failure');
-        return completeSnapshot();
-      },
-    },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => referenceTime,
-    sleep: async milliseconds => { delays.push(milliseconds); },
-  });
-  assert.equal(retried.status, 'published');
-  assert.equal(attempts, 2);
-  assert.deepEqual(delays, [60_000]);
-
-  const modelRepository = dailyAnalysisRepository();
-  let modelAttempts = 0;
-  const modelDelays: number[] = [];
-  const modelRetried = await runDailyAnalysis('2026-11-17', {
-    repository: modelRepository,
-    marketData: { fetchSnapshot: async () => completeSnapshot() },
-    generateReport: async () => {
-      modelAttempts++;
-      if (modelAttempts === 1) throw new GeminiAnalysisError('provider_error', 'temporary failure');
-      return { report: validAnalysisReport(), calendar: calendarResponseResult };
-    },
-    model: 'gemini-test',
-    clock: () => referenceTime,
-    sleep: async milliseconds => { modelDelays.push(milliseconds); },
-  });
-  assert.equal(modelRetried.status, 'published');
-  assert.equal(modelAttempts, 2);
-  assert.deepEqual(modelDelays, [60_000]);
-});
-
-test('exhausted transient retries persist failed and duplicate daily runs are idempotent', async () => {
-  const repository = dailyAnalysisRepository();
-  let attempts = 0;
-  const delays: number[] = [];
+  const text = 'Respuesta libre, con niveles y limitaciones propias del modelo.';
+  let calls = 0;
   const dependencies = {
-    repository,
-    marketData: {
-      fetchSnapshot: async () => {
-        attempts++;
-        throw new MarketDataError('rate_limited', 'temporary failure');
-      },
-    },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => referenceTime,
-    sleep: async (milliseconds: number) => { delays.push(milliseconds); },
+    repository, model: 'test', clock: () => referenceTime,
+    generateReport: async () => { calls++; return {
+      report: { rawText: text, macro: '', confluence: '', entryPlan: '', scenarios: [] as [] },
+      calendar: { status: 'unavailable' as const, summary: '', citations: [] },
+    }; },
   };
-  const failed = await runDailyAnalysis('2026-11-17', dependencies);
-  assert.equal(failed.status, 'failed');
-  assert.equal(attempts, 4);
-  assert.deepEqual(delays, [60_000, 300_000, 900_000]);
+  const record = await runDailyAnalysis('2026-11-17', dependencies);
+  assert.equal(record.status, 'published');
+  assert.equal(record.report?.rawText, text);
+  assert.equal(record.referencePrice, null);
+  await runDailyAnalysis('2026-11-17', dependencies);
+  assert.equal(calls, 1);
+});
 
-  let duplicateProviderCalls = 0;
-  const existing = await runDailyAnalysis('2026-11-17', {
-    repository,
-    marketData: { fetchSnapshot: async () => { duplicateProviderCalls++; return completeSnapshot(); } },
-    generateReport: async () => ({ report: validAnalysisReport(), calendar: calendarResponseResult }),
-    model: 'gemini-test',
-    clock: () => referenceTime,
+test('a previously failed daily record can recover instead of blocking Gemini forever', async () => {
+  const repository = dailyAnalysisRepository();
+  const failed = await runDailyAnalysis('2026-11-17', { repository, model: 'test', clock: () => referenceTime });
+  assert.equal(failed.errorCode, 'missing_api_key');
+  const recovered = await runDailyAnalysis('2026-11-17', {
+    repository, model: 'test', clock: () => referenceTime,
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: { status: 'unavailable', summary: '', citations: [] } }),
   });
-  assert.equal(existing, failed);
-  assert.equal(duplicateProviderCalls, 0);
-  assert.equal(repository.records.size, 1);
+  assert.equal(recovered.status, 'published');
+  assert.equal(recovered.errorCode, null);
+});
+
+test('daily analysis stores the sanitized provider reason for display', async () => {
+  const record = await runDailyAnalysis('2026-11-17', {
+    repository: dailyAnalysisRepository(), model: 'test', clock: () => referenceTime,
+    generateReport: async () => { throw new GeminiAnalysisError('provider_error', '429 quota exceeded'); },
+  });
+  assert.equal(record.status, 'failed');
+  assert.equal(record.sources.errorMessage, '429 quota exceeded');
+});
+
+test('free-form response and provider reason survive repository serialization', async () => {
+  let row: Record<string, unknown> | undefined;
+  const pool = { query: async (_sql: string, values: unknown[]) => {
+    if (_sql.includes('INSERT INTO')) {
+      const keys = ['analysis_date', 'status', 'report', 'sources', 'market_source', 'reference_price', 'reference_at', 'generated_at', 'model', 'prompt_version', 'error_code'];
+      row = Object.fromEntries(keys.map((key, index) => [key, values[index]]));
+      return { rows: [] };
+    }
+    return { rows: row ? [row] : [] };
+  } } as unknown as Pool;
+  const record = await runDailyAnalysis('2026-11-17', {
+    repository: dailyAnalysisRepository(), model: 'test', clock: () => referenceTime,
+    generateReport: async () => ({
+      report: { rawText: '  ## Texto original\n\nSin esquema JSON.  ', macro: '', confluence: '', entryPlan: '', scenarios: [], finishReason: 'STOP', grounding: { citations: [{ title: 'Fuente', url: 'https://www.federalreserve.gov/' }], searchSuggestionsHtml: '<div>Search</div>' } },
+      calendar: { status: 'unavailable', summary: '', citations: [] },
+    }),
+  });
+  await saveAnalysisRecord(pool, record);
+  assert.deepEqual((await findAnalysisByDate(pool, record.analysisDate))?.report, record.report);
+  // El mismo informe persistido se entrega públicamente sin exigir una sesión.
+  const app = buildApp({ pool, origin: 'http://localhost:5173', secureCookies: false });
+  try {
+    assert.equal((await app.inject('/api/auth/me')).statusCode, 401);
+    const response = await app.inject('/api/analysis?limit=10');
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.json().analyses[0].report.rawText, record.report?.rawText);
+  } finally { await app.close(); }
+
+  record.status = 'failed'; record.report = null; record.errorCode = 'provider_error';
+  record.sources.errorMessage = '429 quota exceeded';
+  await saveAnalysisRecord(pool, record);
+  assert.equal((await findAnalysisByDate(pool, record.analysisDate))?.sources.errorMessage, '429 quota exceeded');
+});
+
+test('analysis API distinguishes missing migrations from database connection errors without leaking secrets', async () => {
+  for (const [databaseCode, expected] of [['42P01', 'analysis_schema_missing'], ['ECONNREFUSED', 'analysis_database_unavailable']] as const) {
+    const pool = { query: async () => { throw Object.assign(new Error('private database details'), { code: databaseCode }); } } as unknown as Pool;
+    const app = buildApp({ pool, origin: 'http://localhost:5173', secureCookies: false });
+    try {
+      const response = await app.inject('/api/analysis?limit=10');
+      assert.equal(response.statusCode, 503);
+      assert.equal(response.json().code, expected);
+      assert.doesNotMatch(response.body, /private database details/);
+      assert.match(response.json().message, databaseCode === '42P01' ? /db:migrate/ : /PostgreSQL/);
+    } finally { await app.close(); }
+  }
+});
+
+test('only allowlisted admins can trigger analysis generation from the API', async () => {
+  const token = 'a'.repeat(43);
+  let email = 'admin@example.test';
+  let userId = 'u1';
+  const pool = { query: async () => ({ rows: [{ id: userId, name: 'Admin', email }] }) } as unknown as Pool;
+  let calls = 0;
+  const app = buildApp({
+    pool, origin: 'http://localhost:5173', secureCookies: false,
+    analysis: { adminUserIds: ['u1'], generate: async () => { calls += 1; return { analysisDate: '2026-11-17', status: 'published' } as AnalysisRecord; } },
+  });
+  const post = (cookie?: string) => app.inject({ method: 'POST', url: '/api/analysis/generate', headers: { origin: 'http://localhost:5173', ...(cookie ? { cookie } : {}) } });
+  try {
+    assert.equal((await post()).statusCode, 401);
+    assert.equal(calls, 0);
+    const me = await app.inject({ url: '/api/auth/me', headers: { cookie: `xaurix_session=${token}` } });
+    assert.equal(me.json().canGenerateAnalysis, true);
+    const ok = await post(`xaurix_session=${token}`);
+    assert.equal(ok.statusCode, 200);
+    assert.equal(ok.json().analysis.analysisDate, '2026-11-17');
+    // Reutilizar el correo del admin con otro ID no concede acceso.
+    userId = 'u2';
+    assert.equal((await post(`xaurix_session=${token}`)).statusCode, 403);
+    assert.equal((await app.inject({ url: '/api/auth/me', headers: { cookie: `xaurix_session=${token}` } })).json().canGenerateAnalysis, false);
+    assert.equal(calls, 1);
+  } finally { await app.close(); }
+});
+
+test('reads never generate, and manual calls reject non-admins, forged roles and foreign origins', async () => {
+  let calls = 0;
+  const pool = { query: async (sql: string) => ({ rows: sql.includes('FROM sessions')
+    ? [{ id: 'regular-user', name: 'User', email: 'admin@example.test' }] : [] }) } as unknown as Pool;
+  const app = buildApp({ pool, origin: 'http://localhost:5173', secureCookies: false,
+    analysis: { adminUserIds: ['real-admin'], generate: async () => { calls++; throw new Error('must not run'); } },
+  });
+  try {
+    assert.equal((await app.inject('/api/analysis?limit=10')).statusCode, 200);
+    assert.equal((await app.inject('/api/analysis?limit=10')).statusCode, 200);
+    const headers = { origin: 'http://localhost:5173', cookie: `xaurix_session=${'a'.repeat(43)}` };
+    assert.equal((await app.inject({ method: 'POST', url: '/api/analysis/generate', headers,
+      payload: { role: 'admin', userId: 'real-admin', canGenerateAnalysis: true },
+    })).statusCode, 403);
+    assert.equal((await app.inject({ method: 'POST', url: '/api/analysis/generate', headers: { ...headers, origin: 'https://foreign.test' } })).statusCode, 403);
+    assert.equal(calls, 0);
+  } finally { await app.close(); }
+});
+
+test('simultaneous admin clicks share a single generation', async () => {
+  const pool = { query: async () => ({ rows: [{ id: 'admin-id', name: 'Admin', email: 'admin@example.test' }] }) } as unknown as Pool;
+  let calls = 0;
+  let finish!: () => void;
+  let entered!: () => void;
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  const gate = new Promise<void>(resolve => { finish = resolve; });
+  const app = buildApp({ pool, origin: 'http://localhost:5173', secureCookies: false,
+    analysis: { adminUserIds: ['admin-id'], generate: async () => {
+      calls++; entered(); await gate;
+      return { analysisDate: '2026-11-17', status: 'published' } as AnalysisRecord;
+    } },
+  });
+  const request = { method: 'POST' as const, url: '/api/analysis/generate', headers: {
+    origin: 'http://localhost:5173', cookie: `xaurix_session=${'a'.repeat(43)}`,
+  } };
+  try {
+    const first = app.inject(request);
+    await started;
+    const second = app.inject(request);
+    await new Promise(resolve => setImmediate(resolve));
+    finish();
+    const results = await Promise.all([first, second]);
+    assert.deepEqual(results.map(response => response.statusCode), [200, 200]);
+    assert.equal(calls, 1);
+  } finally { finish(); await app.close(); }
+});
+
+test('published reports are reused after prompt updates without calling Gemini', async () => {
+  const repository = dailyAnalysisRepository();
+  const record = await runDailyAnalysis('2026-11-17', {
+    repository, model: 'test', clock: () => referenceTime,
+    generateReport: async () => ({ report: validAnalysisReport(), calendar: { status: 'unavailable', summary: '', citations: [] } }),
+  });
+  record.promptVersion = 'old-version';
+  assert.equal(await runDailyAnalysis('2026-11-17', { repository, model: 'test',
+    generateReport: async () => { assert.fail('must reuse the stored daily report'); },
+  }), record);
+});
+
+test('analysis generation reports provider failures without leaking details', async () => {
+  const pool = { query: async () => ({ rows: [{ id: 'u1', name: 'Admin', email: 'admin@example.test' }] }) } as unknown as Pool;
+  const app = buildApp({
+    pool, origin: 'http://localhost:5173', secureCookies: false,
+    analysis: { adminUserIds: ['u1'], generate: async () => ({ analysisDate: '2026-11-17', status: 'failed', sources: { errorMessage: 'Cuota de Gemini agotada.' } }) as unknown as AnalysisRecord },
+  });
+  try {
+    const response = await app.inject({ method: 'POST', url: '/api/analysis/generate', headers: { origin: 'http://localhost:5173', cookie: `xaurix_session=${'a'.repeat(43)}` } });
+    assert.equal(response.statusCode, 502);
+    assert.match(response.json().message, /Cuota de Gemini agotada/);
+  } finally { await app.close(); }
 });
 
 test('daily analysis scheduler runs at 08:00 Dominican time and catches up after 08:00', async () => {
@@ -669,4 +584,32 @@ test('node-cron accepts the Dominican time zone and daily schedule options', asy
     clock: () => new Date('2026-11-17T11:00:00Z'),
   });
   await scheduler.stop();
+});
+
+test('real cron next execution is 08:00 RD (12:00 UTC)', async () => {
+  const task = cron.schedule('0 8 * * *', () => {}, { timezone: 'America/Santo_Domingo', noOverlap: true });
+  try {
+    const next = task.getNextRun();
+    assert.ok(next);
+    assert.equal(next.getUTCHours(), 12);
+    assert.equal(next.getUTCMinutes(), 0);
+    assert.equal(next.getUTCSeconds(), 0);
+    assert.equal(new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Santo_Domingo', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(next), '08:00');
+  } finally { await task.destroy(); }
+});
+
+test('scheduler does not overlap active runs and stops after shutdown', async () => {
+  let callback!: () => void;
+  let finish!: () => void;
+  let calls = 0;
+  const gate = new Promise<void>(resolve => { finish = resolve; });
+  const scheduler = startDailyAnalysisScheduler({
+    clock: () => new Date('2026-11-17T12:00:00Z'),
+    run: async () => { calls++; await gate; }, onError: error => assert.fail(String(error)),
+    schedule: (_expr, cb) => { callback = cb; return { stop: () => {} }; },
+  });
+  callback(); callback();
+  assert.equal(calls, 1);
+  finish(); await scheduler.stop(); callback();
+  assert.equal(calls, 1);
 });

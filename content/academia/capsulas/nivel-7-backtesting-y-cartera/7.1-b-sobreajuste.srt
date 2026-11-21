@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:09,500
+Pruebas 1.200 combinaciones de parámetros y eliges la mejor.
+
+2
+00:00:09,500 --> 00:00:15,000
+En la muestra de ajuste la curva parece casi perfecta.
+
+3
+00:00:15,000 --> 00:00:21,500
+En datos que la estrategia nunca vio, el resultado se desvanece: se ajustó al ruido.
+
+4
+00:00:21,500 --> 00:00:27,500
+Reserva datos fuera de muestra y desconfía de las curvas demasiado limpias.
+

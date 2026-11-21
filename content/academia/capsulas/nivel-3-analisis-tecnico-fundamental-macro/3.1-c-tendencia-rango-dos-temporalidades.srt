@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:09,000
+Tendencia alcista: cada máximo y cada mínimo superan al anterior.
+
+2
+00:00:09,000 --> 00:00:14,000
+Tendencia bajista: máximos y mínimos cada vez más bajos.
+
+3
+00:00:14,000 --> 00:00:20,000
+Rango: el precio rebota entre un soporte y una resistencia sin dirección clara.
+
+4
+00:00:20,000 --> 00:00:25,000
+El mismo mercado cambia según la temporalidad. En 4H vemos tendencia…
+
+5
+00:00:25,000 --> 00:00:31,500
+…y en 15 minutos, ese tramo final es un rango.
+
+6
+00:00:31,500 --> 00:00:37,000
+Lee primero la temporalidad mayor para el contexto; la menor da el detalle de la entrada.
+

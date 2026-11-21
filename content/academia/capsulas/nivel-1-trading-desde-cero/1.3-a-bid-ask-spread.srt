@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,440
+Una cotización tiene dos precios: el bid y el ask.
+
+2
+00:00:09,440 --> 00:00:14,940
+Si compras a mercado pagas el ask; si vendes, recibes el bid.
+
+3
+00:00:14,940 --> 00:00:20,590
+La diferencia entre ambos es el spread: un costo que pagas al entrar.
+
+4
+00:00:20,590 --> 00:00:28,880
+Con poca liquidez (noticias, aperturas, festivos) el spread se amplía.
+
+5
+00:00:28,880 --> 00:00:35,270
+Comprar y vender al instante pierde el spread aunque el precio no se mueva.
+

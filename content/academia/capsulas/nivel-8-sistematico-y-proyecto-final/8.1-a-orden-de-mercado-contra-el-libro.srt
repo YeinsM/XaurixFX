@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+El libro muestra órdenes de compra (bid) y de venta (ask) en cada precio.
+
+2
+00:00:08,500 --> 00:00:13,500
+Envías una compra a mercado de 8 lotes.
+
+3
+00:00:13,500 --> 00:00:20,500
+Consume todo lo disponible en cada nivel y sube al siguiente.
+
+4
+00:00:20,500 --> 00:00:26,500
+El precio medio queda por encima del mejor ask: impacto de mercado.
+
+5
+00:00:26,500 --> 00:00:32,000
+Con poca profundidad, el tamaño mismo de la orden mueve el precio.
+

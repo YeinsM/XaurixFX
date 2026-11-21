@@ -23,6 +23,20 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [toast, setToast] = useState('');
+  const [analysisPermission, setAnalysisPermission] = useState<{ userId: string; allowed: boolean } | null>(null);
+  // Nunca reutiliza un permiso concedido a otra sesión/cuenta.
+  const canGenerateAnalysis = Boolean(user && analysisPermission?.userId === user.id && analysisPermission.allowed);
+
+  // El permiso de generar análisis lo decide el backend según la sesión.
+  useEffect(() => {
+    setAnalysisPermission(null);
+    if (!user) return;
+    let active = true;
+    api<{ user: User; canGenerateAnalysis?: boolean }>('/auth/me').then(res => {
+      if (active && res.user.id === user.id) setAnalysisPermission({ userId: res.user.id, allowed: Boolean(res.canGenerateAnalysis) });
+    }).catch(() => { if (active) setAnalysisPermission(null); });
+    return () => { active = false; };
+  }, [user?.id]);
 
   const navigate = useCallback((next: Page) => { location.hash = next; setPage(next); window.scrollTo({ top: 0, behavior: 'instant' }); }, []);
 
@@ -36,7 +50,7 @@ export default function App() {
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 4500); return () => clearTimeout(timer); }, [toast]);
 
   async function logout() {
-    try { await api('/auth/logout', { method: 'POST' }); setUser(null); navigate('inicio'); setToast('Sesión cerrada.'); }
+    try { await api('/auth/logout', { method: 'POST' }); setAnalysisPermission(null); setUser(null); navigate('inicio'); setToast('Sesión cerrada.'); }
     catch (e) { setToast(e instanceof Error ? e.message : 'No se pudo cerrar sesión.'); }
   }
 
@@ -47,15 +61,15 @@ export default function App() {
       {page === 'inicio' && <InicioPage onNavigate={navigate} />}
       {page === 'home' && <HomePage />}
       {page === 'news' && <NewsPage />}
-      {page === 'analysis' && <AnalysisPage />}
-      {page === 'academy' && <AcademyPage />}
+      {page === 'analysis' && <AnalysisPage canGenerate={canGenerateAnalysis} />}
+      {page === 'academy' && <AcademyPage userId={user?.id} />}
       {page === 'broker' && <BrokerPage />}
       {page === 'community' && <CommunityPage />}
       {page === 'settings' && (user
         ? <ProfileSettings user={user} onSaved={saved => { setUser(saved); setToast('Tu perfil se actualizó.'); }} onLogout={() => void logout()} />
         : <main id="main-content" tabIndex={-1} className="mk-main"><section className="panel settings-empty"><h2>Un espacio que es tuyo</h2><p>Inicia sesión para ver tu perfil.</p><button className="button primary" onClick={() => setAuthOpen(true)}>Acceder a mi cuenta</button></section></main>)}
       <footer className="mk-footer">
-        <span>© {new Date().getFullYear()} Xaurix FX</span>
+        <span className="mk-footer-brand"><img className="brand-icon" src="/images/xaurix-icon.png" alt="" width={24} height={24} />© {new Date().getFullYear()} Xaurix FX</span>
         <span>Información de mercados con fines informativos; no constituye recomendación de inversión.</span>
         <span>Widgets: <a href="https://www.tradingview.com/" target="_blank" rel="noreferrer">TradingView</a>.</span>
       </footer>

@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:10,090
+Tu capital es lo que depositas en la cuenta: 1.000 USD en este ejemplo.
+
+2
+00:00:10,090 --> 00:00:18,710
+Con apalancamiento 1:20 controlas una posición de 20.000 USD: el nocional.
+
+3
+00:00:18,710 --> 00:00:29,650
+El precio se mueve sobre el nocional. Una subida del 1 % = +200 USD = +20 % de tu capital.
+
+4
+00:00:29,650 --> 00:00:35,650
+Una bajada del 1 % = −200 USD = −20 % de tu capital.
+
+5
+00:00:35,650 --> 00:00:45,240
+Una caída del 5 % consumiría todo el capital. El broker cerraría antes por margen.
+
+6
+00:00:45,240 --> 00:00:53,440
+El apalancamiento multiplica ganancias y pérdidas. Dimensiona por el nocional.
+

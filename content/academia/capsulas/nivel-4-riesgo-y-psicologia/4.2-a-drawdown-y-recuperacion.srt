@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+El drawdown es la caída del capital desde su último máximo.
+
+2
+00:00:09,000 --> 00:00:15,500
+Se mide en cada momento. El drawdown máximo es la peor caída del período.
+
+3
+00:00:15,500 --> 00:00:21,500
+Recuperar cuesta más que caer: perder un 10 % exige ganar un 11 %.
+
+4
+00:00:21,500 --> 00:00:28,000
+Con −25 % necesitas +33 %; con −50 %, +100 %.
+
+5
+00:00:28,000 --> 00:00:34,000
+Por eso se limitan la pérdida por operación y por sesión: un drawdown pequeño es recuperable.
+

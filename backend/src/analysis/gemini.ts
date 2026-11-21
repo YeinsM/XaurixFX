@@ -1,271 +1,80 @@
-import { GoogleGenAI } from '@google/genai';
-import { validateScenario } from './scenarios.js';
-import { ANALYSIS_REPORT_SCHEMA, buildAnalysisPrompt, buildCalendarPrompt } from './prompt.js';
-import type {
-  AnalysisInput,
-  AnalysisReport,
-  AnalysisScenario,
-  CalendarCitation,
-  CalendarResult,
-  GeneratedAnalysis,
-} from './types.js';
+import { GoogleGenAI, type GenerateContentParameters, type GenerateContentResponse, type HttpOptions } from '@google/genai';
+import { buildAnalysisPrompt } from './prompt.js';
+import type { GeneratedAnalysis } from './types.js';
 
-type GeminiRequest = Parameters<GoogleGenAI['interactions']['create']>[0];
-
-interface GeminiInteractionsClient {
-  interactions: {
-    create(request: GeminiRequest): Promise<unknown>;
-  };
+interface GeminiClient {
+  models: { generateContent(request: GenerateContentParameters): Promise<GenerateContentResponse> };
 }
 
-export type GeminiAnalysisErrorCode = 'missing_api_key' | 'provider_error' | 'invalid_report';
-
 export class GeminiAnalysisError extends Error {
-  constructor(readonly code: GeminiAnalysisErrorCode, message: string) {
+  constructor(readonly code: 'missing_api_key' | 'provider_error' | 'invalid_report', message: string) {
     super(message);
     this.name = 'GeminiAnalysisError';
   }
 }
 
-interface GeminiAnalysisOptions {
-  apiKey?: string;
-  model: string;
-  client?: GeminiInteractionsClient;
-  timeoutMs?: number;
-}
-
-interface GeminiAnalysisClient {
-  generateReport(input: AnalysisInput): Promise<GeneratedAnalysis>;
-}
-
-export function createGeminiAnalysisClient({
-  apiKey,
-  model,
-  client: injectedClient,
-  timeoutMs = 30_000,
-}: GeminiAnalysisOptions): GeminiAnalysisClient {
-  const client = injectedClient ?? (apiKey?.trim()
-    ? new GoogleGenAI({ apiKey: apiKey.trim(), httpOptions: { timeout: timeoutMs } })
-    : undefined);
-
+export function createGeminiAnalysisClient({ apiKey, model, client: injectedClient, timeoutMs = 120_000, fetch: transport }: {
+  apiKey?: string; model: string; client?: GeminiClient; timeoutMs?: number; fetch?: HttpOptions['fetch'];
+}) {
+  const key = apiKey?.trim();
+  const client = injectedClient ?? (key
+    ? new GoogleGenAI({ apiKey: key, httpOptions: {
+      apiVersion: 'v1beta', timeout: timeoutMs, fetch: transport,
+      // Reintenta solo fallos transitorios, nunca permisos ni claves inválidas.
+      retryOptions: { attempts: 2, initialDelay: 1, maxDelay: 2, httpStatusCodes: [408, 429, 500, 502, 503, 504] },
+    } }) : undefined);
   return {
-    async generateReport(input) {
-      if (!apiKey?.trim()) {
-        throw new GeminiAnalysisError('missing_api_key', 'Gemini API key is not configured');
+    async generateReport(input: { analysisTime: string }): Promise<GeneratedAnalysis> {
+      if (!key || !client) throw new GeminiAnalysisError('missing_api_key', 'Configura GEMINI_API_KEY en el backend.');
+      let response: GenerateContentResponse;
+      try {
+        // Una llamada: prompt completo, búsqueda habilitada y respuesta libre, sin esquema JSON.
+        response = await client.models.generateContent({
+          model,
+          contents: buildAnalysisPrompt(input.analysisTime),
+          config: { tools: [{ googleSearch: {} }] },
+        });
+      } catch (error) {
+        // Conserva el motivo del proveedor sin filtrar credenciales al historial público.
+        throw new GeminiAnalysisError('provider_error', providerErrorMessage(error, key));
       }
-      if (!client) {
-        throw new GeminiAnalysisError('provider_error', 'Gemini client is unavailable');
+      const text = response.text;
+      const candidate = response.candidates?.[0];
+      if (!text?.trim()) {
+        const reason = response.promptFeedback?.blockReason ?? candidate?.finishReason ?? 'EMPTY_RESPONSE';
+        throw new GeminiAnalysisError('invalid_report', `Gemini devolvió una respuesta sin texto (${reason}).`);
       }
-
-      const calendar = await requestCalendar(client, model, input);
-      const response = await requestInteraction(client, {
-        model,
-        input: buildAnalysisPrompt(input, calendar),
-        response_format: {
-          type: 'text',
-          mime_type: 'application/json',
-          schema: ANALYSIS_REPORT_SCHEMA,
-        },
-        store: false,
+      const metadata = candidate?.groundingMetadata;
+      const citations = (metadata?.groundingChunks ?? []).flatMap(chunk => {
+        const web = chunk.web;
+        if (!web?.uri) return [];
+        try {
+          const url = new URL(web.uri);
+          return url.protocol === 'https:' && !url.username && !url.password
+            ? [{ url: url.href, title: web.title || url.hostname }] : [];
+        } catch { return []; }
       });
-      return { report: parseAnalysisReport(response), calendar };
+      // Guarda el texto íntegro, incluso si Gemini responde que faltan datos.
+      return {
+        report: {
+          rawText: text, macro: '', confluence: '', entryPlan: '', scenarios: [],
+          grounding: { citations, searchSuggestionsHtml: metadata?.searchEntryPoint?.renderedContent ?? '' },
+          finishReason: candidate?.finishReason,
+        },
+        calendar: { status: 'unavailable', summary: '', citations: [] },
+      };
     },
   };
 }
 
-async function requestCalendar(
-  client: GeminiInteractionsClient,
-  model: string,
-  input: AnalysisInput,
-): Promise<CalendarResult> {
-  try {
-    const response = await requestInteraction(client, {
-      model,
-      input: buildCalendarPrompt(input.analysisTime),
-      tools: [{ type: 'google_search' }],
-      store: false,
-    });
-    const summary = readOutputText(response);
-    const citations = readCitations(response);
-    if (!summary || hasUnsafeMarkup(summary) || citations.length === 0) {
-      return unavailableCalendar();
-    }
-    return { status: 'verified', summary, citations };
-  } catch {
-    return unavailableCalendar();
-  }
-}
-
-async function requestInteraction(
-  client: GeminiInteractionsClient,
-  request: GeminiRequest,
-): Promise<unknown> {
-  try {
-    return await client.interactions.create({ ...request, store: false });
-  } catch {
-    throw new GeminiAnalysisError('provider_error', 'Gemini request failed');
-  }
-}
-
-function parseAnalysisReport(response: unknown): AnalysisReport {
-  const output = readOutputText(response);
-  if (!output) throw new GeminiAnalysisError('invalid_report', 'Gemini returned no structured report');
-
-  let value: unknown;
-  try {
-    value = JSON.parse(output);
-  } catch {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini returned invalid report JSON');
-  }
-  if (!isRecord(value) || !isPlainText(value.macro) || !isPlainText(value.confluence) ||
-    !isPlainText(value.entryPlan) || !Array.isArray(value.scenarios) || value.scenarios.length !== 2) {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini report is missing required fields');
-  }
-
-  const scenarios = value.scenarios.map(parseScenario);
-  if (scenarios[0]?.name !== 'A' || scenarios[1]?.name !== 'B') {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini report must contain scenarios A and B');
-  }
-  return {
-    macro: value.macro,
-    confluence: value.confluence,
-    entryPlan: value.entryPlan,
-    scenarios: [scenarios[0], scenarios[1]],
-  };
-}
-
-function parseScenario(value: unknown): AnalysisScenario {
-  if (!isRecord(value) || (value.name !== 'A' && value.name !== 'B') ||
-    (value.direction !== 'buy' && value.direction !== 'sell' && value.direction !== 'wait') ||
-    !Array.isArray(value.takeProfits) || value.takeProfits.length !== 3) {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini scenario is missing required fields');
-  }
-
-  const entryLow = readNullablePrice(value.entryLow);
-  const entryHigh = readNullablePrice(value.entryHigh);
-  const stopLoss = readNullablePrice(value.stopLoss);
-  const takeProfits: [number | null, number | null, number | null] = [
-    readNullablePrice(value.takeProfits[0]),
-    readNullablePrice(value.takeProfits[1]),
-    readNullablePrice(value.takeProfits[2]),
-  ];
-  const prices = [entryLow, entryHigh, stopLoss, ...takeProfits];
-  const hasAnyPrice = prices.some(price => price !== null);
-  const hasAllPrices = prices.every(price => typeof price === 'number');
-  if (hasAnyPrice !== hasAllPrices) {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini scenario must provide all prices or none');
-  }
-
-  const scenario: AnalysisScenario = {
-    name: value.name,
-    direction: value.direction,
-    context: readText(value, 'context'),
-    preconditions: readText(value, 'preconditions'),
-    m15Zone: readText(value, 'm15Zone'),
-    m5Confirmation: readText(value, 'm5Confirmation'),
-    entryType: readText(value, 'entryType'),
-    entryLow,
-    entryHigh,
-    stopLoss,
-    takeProfits,
-    cancellation: readText(value, 'cancellation'),
-    management: readText(value, 'management'),
-    validity: readText(value, 'validity'),
-    invalidation: readText(value, 'invalidation'),
-    rationale: readText(value, 'rationale'),
-  };
-
-  if (scenario.direction === 'wait' && hasAnyPrice) {
-    throw new GeminiAnalysisError('invalid_report', 'Waiting scenarios cannot contain entry prices');
-  }
-  if (scenario.direction !== 'wait' && hasAllPrices) {
-    const [target1, target2, target3] = takeProfits;
-    const valid = validateScenario({
-      direction: scenario.direction,
-      entryLow: requirePrice(entryLow),
-      entryHigh: requirePrice(entryHigh),
-      stopLoss: requirePrice(stopLoss),
-      takeProfits: [requirePrice(target1), requirePrice(target2), requirePrice(target3)],
-    });
-    if (!valid.valid) throw new GeminiAnalysisError('invalid_report', 'Gemini scenario levels are inconsistent');
-  }
-  return scenario;
-}
-
-function readText(value: Record<string, unknown>, key: string): string {
-  const text = value[key];
-  if (!isPlainText(text)) throw new GeminiAnalysisError('invalid_report', 'Gemini scenario contains invalid text');
-  return text;
-}
-
-function readNullablePrice(value: unknown): number | null {
-  if (value === null) return null;
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new GeminiAnalysisError('invalid_report', 'Gemini scenario contains invalid prices');
-  }
-  return value;
-}
-
-function requirePrice(value: number | null): number {
-  if (value === null) throw new GeminiAnalysisError('invalid_report', 'Gemini scenario levels are incomplete');
-  return value;
-}
-
-function readOutputText(response: unknown): string | undefined {
-  if (!isRecord(response)) return undefined;
-  if (typeof response.output_text === 'string') return response.output_text;
-  if (!Array.isArray(response.steps)) return undefined;
-  const parts: string[] = [];
-  for (const step of response.steps) {
-    if (!isRecord(step) || step.type !== 'model_output' || !Array.isArray(step.content)) continue;
-    for (const content of step.content) {
-      if (isRecord(content) && content.type === 'text' && typeof content.text === 'string') {
-        parts.push(content.text);
-      }
-    }
-  }
-  return parts.length > 0 ? parts.join('\n') : undefined;
-}
-
-function readCitations(response: unknown): CalendarCitation[] {
-  if (!isRecord(response) || !Array.isArray(response.steps)) return [];
-  const citations = new Map<string, CalendarCitation>();
-  for (const step of response.steps) {
-    if (!isRecord(step) || step.type !== 'model_output' || !Array.isArray(step.content)) continue;
-    for (const content of step.content) {
-      if (!isRecord(content) || !Array.isArray(content.annotations)) continue;
-      for (const annotation of content.annotations) {
-        if (!isRecord(annotation) || annotation.type !== 'url_citation' ||
-          typeof annotation.url !== 'string' || typeof annotation.title !== 'string') continue;
-        try {
-          const url = new URL(annotation.url);
-          if (url.protocol !== 'https:' || url.username || url.password || !annotation.title.trim()) continue;
-          citations.set(url.href, { url: url.href, title: annotation.title.trim() });
-        } catch {
-          continue;
-        }
-      }
-    }
-  }
-  return [...citations.values()];
-}
-
-function isPlainText(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0 && !hasUnsafeMarkup(value);
-}
-
-function hasUnsafeMarkup(value: string): boolean {
-  return /<\/?[a-z][^>]*>/i.test(value);
-}
-
-function unavailableCalendar(): CalendarResult {
-  return {
-    status: 'unavailable',
-    summary: 'No se pudo verificar el calendario económico.',
-    citations: [],
-  };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+/** Conserva el diagnóstico HTTP/DNS sin exponer la credencial en mensajes públicos. */
+function providerErrorMessage(error: unknown, key: string): string {
+  const value = error as { message?: unknown; status?: unknown; cause?: { code?: unknown; message?: unknown } } | null;
+  const details = [
+    typeof value?.status === 'number' ? `HTTP ${value.status}` : '',
+    typeof value?.message === 'string' ? value.message : 'Error de conexión con Google',
+    typeof value?.cause?.code === 'string' ? value.cause.code : '',
+    typeof value?.cause?.message === 'string' ? value.cause.message : '',
+  ].filter(Boolean).join(': ');
+  return details.replaceAll(key, '[REDACTED]').replace(/AIza[\w-]+/g, '[REDACTED]').slice(0, 1500);
 }

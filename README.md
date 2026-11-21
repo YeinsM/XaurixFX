@@ -4,24 +4,24 @@ Primera versión local de la plataforma de seguimiento de inversiones: **React +
 
 ## Iniciar
 
-Requisitos: Node >=22.14, npm y PostgreSQL (validado con 18.1). Desde la raíz:
+Requisitos: Node >=22.14, npm y Docker Desktop con contenedores Linux. Desde la raíz:
 
 ```powershell
 npm ci
-Copy-Item backend/.env.example backend/.env
-# Configurar DATABASE_URL y TEST_DATABASE_URL con bases propias de desarrollo.
+docker compose up -d --wait postgres
+if (!(Test-Path backend/.env)) { Copy-Item backend/.env.example backend/.env }
 npm run db:migrate
 npm run dev
 ```
 
-No reemplazar un .env existente. En esta máquina ya está configurado (ignorado por Git).
+Si `backend/.env` ya existe y apunta a otra instancia, actualiza `DATABASE_URL` y `TEST_DATABASE_URL` usando `backend/.env.example` como referencia **antes** de migrar, para conservar las demás variables. Docker escucha solo en `127.0.0.1:55440`. Si el backend ya estaba corriendo, reinícialo para cargar las nuevas URL.
 Frontend: http://localhost:5173. Backend: http://127.0.0.1:4000/api/health.
 Usar localhost para abrir el frontend: debe coincidir con FRONTEND_ORIGIN/APP_ORIGIN.
 Vite envía /api al backend. El frontend no contiene credenciales de PostgreSQL.
 
 ## Incluido
 
-- Panel negro/dorado adaptable a móvil, con navegación y logo tipográfico provisional.
+- Panel negro/dorado adaptable a móvil, con navegación y logo de Xaurix FX.
 - Home pública de mercados con widgets de TradingView (cinta, panorama, calendario, noticias, ganadores, mapa de calor).
 - Registro, inicio/cierre de sesión y edición del nombre.
 - Sesiones HttpOnly revocables; contraseñas scrypt; SQL parametrizado y registro atómico.

@@ -3,7 +3,7 @@ import { after, before, test } from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { buildApp } from '../src/app.js';
-import { saveAnalysisRecord, withAnalysisDateLock } from '../src/analysisRepository.js';
+import { findAnalysisByDate, saveAnalysisRecord, withAnalysisDateLock } from '../src/analysisRepository.js';
 import { migrate } from '../src/migrate.js';
 import type { AnalysisRecord, AnalysisScenario } from '../src/analysis/types.js';
 
@@ -151,10 +151,9 @@ test('daily analyses are unique by date and public history is descending and pag
   await saveAnalysisRecord(pool, analysisRecord('2026-11-18', 'published'));
   await saveAnalysisRecord(pool, analysisRecord('2026-11-17', 'insufficient_data'));
   await saveAnalysisRecord(pool, analysisRecord('2026-11-16', 'failed'));
-  await assert.rejects(
-    saveAnalysisRecord(pool, analysisRecord('2026-11-18', 'failed')),
-    (error: { code?: string }) => error.code === '23505',
-  );
+  // Reintentar el mismo día actualiza el registro sin duplicar el historial.
+  await saveAnalysisRecord(pool, analysisRecord('2026-11-18', 'published'));
+  assert.equal((await pool.query("SELECT count(*)::int AS count FROM market_analyses WHERE analysis_date = '2026-11-18'")).rows[0].count, 1);
 
   const first = await app.inject('/api/analysis?limit=2');
   assert.equal(first.statusCode, 200);
@@ -168,6 +167,24 @@ test('daily analyses are unique by date and public history is descending and pag
   assert.deepEqual(second.json().analyses.map((record: { analysisDate: string }) => record.analysisDate), ['2026-11-16']);
   assert.equal(second.json().nextBefore, null);
   assert.doesNotMatch(JSON.stringify(first.json()), /GEMINI_API_KEY|GOLDPRICE_API_KEY|apiKey/);
+});
+
+test('raw Gemini text persists without market prices and replaces a failed daily record', async () => {
+  const date = '2026-11-14';
+  await saveAnalysisRecord(pool, analysisRecord(date, 'failed'));
+  const record = analysisRecord(date, 'published');
+  record.report = { rawText: '## Respuesta original\nSin JSON y con limitaciones del modelo.', macro: '', confluence: '', entryPlan: '', scenarios: [] };
+  record.marketSource = null;
+  record.referencePrice = null;
+  record.referenceAt = null;
+  await saveAnalysisRecord(pool, record);
+  const stored = await findAnalysisByDate(pool, date);
+  assert.equal(stored?.status, 'published');
+  assert.equal(stored?.report?.rawText, record.report.rawText);
+  const response = await app.inject(`/api/analysis?limit=1&before=${date}`);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().analyses[0].report.rawText, record.report.rawText);
+  await pool.query('DELETE FROM market_analyses WHERE analysis_date = $1', [date]);
 });
 
 test('daily advisory lock serializes same-date jobs and releases after errors', async () => {

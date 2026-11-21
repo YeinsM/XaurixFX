@@ -16,6 +16,10 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env) {
     secureCookies: environment.NODE_ENV === 'production',
     geminiApiKey: environment.GEMINI_API_KEY?.trim() || undefined,
     goldPriceApiKey: environment.GOLDPRICE_API_KEY?.trim() || undefined,
+    analysisAdminUserIds: (environment.ANALYSIS_ADMIN_USER_IDS ?? '').split(',').map(id => id.trim()).filter(Boolean),
+    geminiImageModel: environment.GEMINI_IMAGE_MODEL?.trim() || 'gemini-3-pro-image',
+    // Disco local por ahora; sustituible por almacenamiento en la nube (ver imageStore.ts).
+    analysisImageDir: environment.ANALYSIS_IMAGE_DIR?.trim() || 'storage/analysis-images',
     geminiModel: environment.GEMINI_MODEL?.trim() || 'gemini-4-hydrogen',
   };
 }

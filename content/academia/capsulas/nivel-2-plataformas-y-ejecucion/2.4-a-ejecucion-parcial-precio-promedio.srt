@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,000
+Quieres comprar 10 lotes con un límite de 2.380,70.
+
+2
+00:00:08,000 --> 00:00:13,000
+Primero se toman los 3 lotes disponibles al mejor precio.
+
+3
+00:00:13,000 --> 00:00:18,500
+Luego 4 lotes más en el siguiente nivel, que aún respeta tu límite.
+
+4
+00:00:18,500 --> 00:00:25,000
+Llevas 7 de 10. Precio promedio = (3×2.380,50 + 4×2.380,70) ÷ 7 = 2.380,61.
+
+5
+00:00:25,000 --> 00:00:31,000
+El resto depende de la vigencia: hasta el final del día, hasta que la canceles o se anula.
+

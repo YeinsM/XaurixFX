@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:07,500
+Precio actual del oro (simulado). ¿Cómo entras?
+
+2
+00:00:07,500 --> 00:00:12,500
+MARKET: se ejecuta de inmediato al mejor precio disponible.
+
+3
+00:00:12,500 --> 00:00:19,000
+LIMIT: fijas el precio máximo de compra. Va por debajo y espera a que el precio baje.
+
+4
+00:00:19,000 --> 00:00:25,500
+STOP: se activa al tocar el nivel y entonces entra a mercado. Para compras, va por encima.
+
+5
+00:00:25,500 --> 00:00:32,500
+En ventas se invierte: el sell limit va encima y el sell stop debajo. El stop-loss es un sell stop.
+

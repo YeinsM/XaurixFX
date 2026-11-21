@@ -103,10 +103,13 @@ export interface AnalysisScenario {
 }
 
 export interface AnalysisReport {
+  rawText?: string;
+  finishReason?: string;
+  grounding?: { citations: { url: string; title: string }[]; searchSuggestionsHtml: string };
   macro: string;
   confluence: string;
   entryPlan: string;
-  scenarios: [AnalysisScenario, AnalysisScenario];
+  scenarios: [AnalysisScenario, AnalysisScenario] | [];
 }
 
 export interface GeneratedAnalysis {
@@ -115,6 +118,7 @@ export interface GeneratedAnalysis {
 }
 
 export interface AnalysisSources {
+  errorMessage?: string;
   market: MarketSource[];
   calendar: CalendarResult;
 }

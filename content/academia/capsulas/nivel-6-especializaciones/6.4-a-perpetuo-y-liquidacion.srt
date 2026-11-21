@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+Compras 1 BTC en 60.000 USD: al contado, o con un perpetuo apalancado 10 veces.
+
+2
+00:00:08,500 --> 00:00:15,000
+Con 10× aportas 6.000 USD de margen. Una caída cercana al 10 % lo agota.
+
+3
+00:00:15,000 --> 00:00:21,000
+La liquidación se calcula con el precio de marca y el margen de mantenimiento: llega antes del −10 %.
+
+4
+00:00:21,000 --> 00:00:28,000
+Mismo movimiento: al contado tienes una pérdida flotante; en el perpetuo, el margen desaparece.
+
+5
+00:00:28,000 --> 00:00:33,500
+Además, el funding se paga o cobra periódicamente mientras la posición siga abierta.
+

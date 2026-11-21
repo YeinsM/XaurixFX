@@ -1,0 +1,24 @@
+1
+00:00:03,000 --> 00:00:09,000
+Estrategia A: acierta 4 de cada 10, pero gana 3R y pierde 1R.
+
+2
+00:00:09,000 --> 00:00:15,000
+Esperanza = 0,4 × 3 − 0,6 × 1 = +0,6R por operación.
+
+3
+00:00:15,000 --> 00:00:21,000
+Estrategia B: acierta 7 de cada 10, gana 0,5R y pierde 1R.
+
+4
+00:00:21,000 --> 00:00:27,000
+Esperanza = 0,7 × 0,5 − 0,3 × 1 = +0,05R. Casi cero.
+
+5
+00:00:27,000 --> 00:00:33,500
+Con un costo de 0,1R por operación, A sigue en positivo y B pasa a perder.
+
+6
+00:00:33,500 --> 00:00:40,000
+La tasa de acierto sola no dice nada: importa cuánto ganas y cuánto pierdes.
+

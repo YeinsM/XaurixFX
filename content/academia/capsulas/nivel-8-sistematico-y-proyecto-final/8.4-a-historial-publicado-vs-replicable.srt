@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Este historial muestra un balance que sube casi sin caídas.
+
+2
+00:00:09,000 --> 00:00:15,500
+El balance solo registra operaciones cerradas. Las perdedoras pueden seguir abiertas.
+
+3
+00:00:15,500 --> 00:00:22,500
+La equity revela pérdidas flotantes cada vez más profundas: típico de promediar a la contra o martingala.
+
+4
+00:00:22,500 --> 00:00:28,500
+Tu copia pagaría comisiones y deslizamiento que el historial publicado no incluye.
+
+5
+00:00:28,500 --> 00:00:34,000
+Pide equity, caída máxima, apalancamiento y cambios de reglas antes de confiar en un historial.
+

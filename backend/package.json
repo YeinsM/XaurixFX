@@ -8,10 +8,13 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "analysis:check": "node --env-file-if-exists=.env --import tsx src/analysis/check.ts",
+    "analysis:publish": "node --env-file-if-exists=.env --import tsx src/analysis/check.ts --publish",
+    "analysis:regenerate": "node --env-file-if-exists=.env --import tsx src/analysis/check.ts --publish --force",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "db:migrate": "tsx src/migrate.ts",
-    "test": "tsx --test test/security.test.ts test/news.test.ts test/analysis.test.ts",
+    "test": "tsx --test test/security.test.ts test/news.test.ts test/analysis.test.ts test/scenarioImages.test.ts test/academy.test.ts",
     "test:integration": "node --env-file-if-exists=.env --import tsx --test test/integration.test.ts"
   },
   "dependencies": {

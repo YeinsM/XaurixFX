@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,000
+Un ETF intenta replicar un índice. Ambos parten de 100.
+
+2
+00:00:09,000 --> 00:00:15,000
+Con el tiempo, comisiones y costos de replicar dejan al fondo algo por debajo.
+
+3
+00:00:15,000 --> 00:00:21,000
+La diferencia de seguimiento es esa brecha acumulada en el período.
+
+4
+00:00:21,000 --> 00:00:27,500
+El tracking error mide cuánto oscila esa diferencia: la regularidad del seguimiento.
+
+5
+00:00:27,500 --> 00:00:32,500
+Compara siempre fondo e índice en el mismo período y con los mismos datos.
+

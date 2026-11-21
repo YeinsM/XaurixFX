@@ -1,3 +1,5 @@
+> Diseño histórico sustituido el 2026-11-17 por petición del usuario: prompt directo a Gemini y respuesta íntegra, sin GoldPrice ni JSON obligatorio. Ver docs/project.md y APP-10 en docs/work.md.
+
 # Diseño: análisis diario de XAUUSD
 
 Fecha: 2026-11-17

@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:09,160
+Dos gráficos con el mismo rango y la misma resistencia en 2.395.
+
+2
+00:00:09,160 --> 00:00:16,160
+Rompimiento: la vela cierra fuera de la zona y el precio se sostiene al volver a probarla.
+
+3
+00:00:16,160 --> 00:00:23,160
+Falso rompimiento: la mecha supera el nivel, pero la vela cierra dentro y el precio regresa.
+
+4
+00:00:23,160 --> 00:00:30,160
+Espera el cierre, no el primer toque, y define antes qué invalidaría tu idea.
+

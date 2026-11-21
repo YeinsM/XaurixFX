@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:09,500
+Una call da derecho a comprar al strike. Pagas una prima de 5: es tu pérdida máxima.
+
+2
+00:00:09,500 --> 00:00:15,000
+Gana si al vencer el precio supera strike + prima: 105.
+
+3
+00:00:15,000 --> 00:00:21,500
+Una put da derecho a vender al strike. Prima 4: gana bajo 96.
+
+4
+00:00:21,500 --> 00:00:28,500
+Recorre el precio: la pérdida queda limitada a la prima; la ganancia depende del movimiento.
+
+5
+00:00:28,500 --> 00:00:33,500
+Antes del vencimiento el valor también depende del tiempo y la volatilidad.
+

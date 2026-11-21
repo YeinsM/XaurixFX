@@ -1,0 +1,16 @@
+1
+00:00:03,000 --> 00:00:11,940
+El subyacente es lo que analizas; el instrumento es lo que compras o vendes.
+
+2
+00:00:11,940 --> 00:00:23,440
+El S&P 500 es un índice: un cálculo. Para exponerte necesitas un ETF, un futuro o un CFD.
+
+3
+00:00:23,440 --> 00:00:30,530
+Con Bitcoin puedes tener la moneda o un derivado que solo sigue su precio.
+
+4
+00:00:30,530 --> 00:00:39,990
+Mismo subyacente, distintos costos, horarios, margen y riesgos según el instrumento.
+

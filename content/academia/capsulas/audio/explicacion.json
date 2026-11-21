@@ -1,0 +1,252 @@
+{
+ "1.2-a": [
+  "Primero, una distinción clave: el subyacente es lo que analizas, y el instrumento es lo que realmente compras o vendes.",
+  "Fíjate en el ese ande pe quinientos. Es un índice, o sea, un cálculo. No lo puedes comprar directamente: necesitas un e te efe, un futuro o un ce efe de.",
+  "Con bitcoin pasa algo parecido: puedes tener la moneda, o un derivado que solo replica su precio.",
+  "Así que, aunque el subyacente sea el mismo, cada instrumento tiene sus propios costos, horarios, margen y riesgos."
+ ],
+ "1.3-a": [
+  "Cada vez que miras una cotización, en realidad hay dos precios: el bid y el ask.",
+  "Si compras a mercado, pagas el ask. Si vendes, recibes el bid.",
+  "Esa diferencia se llama spread, y es un costo que pagas apenas entras.",
+  "Cuando hay poca liquidez, por ejemplo en noticias, aperturas o festivos, el spread se abre bastante más.",
+  "Por eso, si compras y vendes al instante, pierdes el spread aunque el precio no se haya movido."
+ ],
+ "1.4-a": [
+  "Vamos a comparar las dos direcciones. Una posición larga gana cuando el precio sube, y una corta gana cuando baja.",
+  "Mira: el oro pasa de dos mil trescientos ochenta a dos mil cuatrocientos. Con diez onzas, el largo gana doscientos dólares, y el corto pierde exactamente lo mismo.",
+  "Si después el precio retrocede a dos mil trescientos noventa, la ganancia del largo se achica, y la pérdida del corto también.",
+  "Mientras la posición siga abierta, ese resultado es flotante. Solo se vuelve real cuando cierras.",
+  "Y ojo: lo que cuenta es el neto. A los dos les toca pagar spread y comisión, así que el largo se queda en noventa y cuatro, y el corto pierde ciento seis."
+ ],
+ "1.4-b": [
+  "Empecemos por lo básico: tu capital es lo que depositas. En este ejemplo, mil dólares.",
+  "Con un apalancamiento de uno a veinte, esos mil dólares controlan una posición de veinte mil. A eso se le llama nocional.",
+  "Y aquí está la clave: el precio se mueve sobre el nocional. Si sube solo un uno por ciento, ganas doscientos dólares. Eso es un veinte por ciento de tu capital.",
+  "Pero si baja un uno por ciento, pierdes esos mismos doscientos dólares.",
+  "Con una caída del cinco por ciento perderías todo el capital. De hecho, el bróker cerraría la posición antes, por falta de margen.",
+  "El apalancamiento multiplica en las dos direcciones. Por eso, calcula siempre tu riesgo sobre el nocional."
+ ],
+ "2.2-a": [
+  "Este es el precio actual del oro, con datos simulados. ¿Cómo entramos?",
+  "La orden a mercado se ejecuta al instante, al mejor precio que haya disponible.",
+  "Con una orden límite, tú fijas el precio máximo que estás dispuesto a pagar. Se coloca por debajo y espera a que el precio baje hasta ahí.",
+  "Una orden stop, en cambio, se activa cuando el precio toca tu nivel, y en ese momento entra a mercado. Si es de compra, va por encima del precio.",
+  "En las ventas todo se invierte: el sell limit va arriba y el sell stop va abajo. De hecho, un stop-loss no es más que un sell stop."
+ ],
+ "2.2-b": [
+  "Al abrir una compra, puedes dejar listas dos órdenes de salida: un stop-loss y un take-profit.",
+  "Las dos van vinculadas. Cuando una se ejecuta, la otra se cancela sola.",
+  "En el primer escenario, el precio llega al take-profit. Cierras con ganancia, y el stop se cancela automáticamente.",
+  "En el segundo, el precio cae hasta el stop. Cierras con la pérdida que ya tenías prevista, y se cancela el take-profit.",
+  "Aquí arriesgas ocho dólares para buscar dieciséis. Es una relación de uno a dos, y la decides antes de entrar, no durante la operación."
+ ],
+ "2.3-a": [
+  "El gráfico muestra un recorrido de quinientos dólares. Ese es el resultado bruto.",
+  "Pero al entrar ya pagaste el spread.",
+  "Algunas cuentas, además, cobran comisión por lote, tanto al entrar como al salir.",
+  "Luego está el deslizamiento: cuando la orden se ejecuta a un precio peor del que pediste.",
+  "Y si mantienes la posición de un día para otro, se cobra, o a veces se paga, la financiación, el famoso swap.",
+  "Al final, a tu cuenta llegan cuatrocientos dólares. Ese es el número que importa: evalúa siempre en neto."
+ ],
+ "2.4-a": [
+  "Quieres comprar diez lotes, pero sin pagar más de dos mil trescientos ochenta con setenta.",
+  "Primero se llenan los tres lotes que hay al mejor precio.",
+  "Después, cuatro lotes más en el siguiente nivel, que todavía está dentro de tu límite.",
+  "Ya llevas siete de diez, y tu precio promedio queda en dos mil trescientos ochenta con sesenta y uno.",
+  "Los tres lotes que faltan dependen de la vigencia de la orden: pueden esperar hasta el cierre del día, hasta que la canceles, o anularse."
+ ],
+ "3.1-a": [
+  "Si miras con atención, hay niveles donde el precio se frena una y otra vez.",
+  "Un soporte es una zona donde las caídas se detuvieron, porque ahí aparecieron compradores.",
+  "Y una resistencia es justo lo contrario: una zona donde las subidas se frenaron por la presión vendedora.",
+  "Fíjate que son zonas, no líneas exactas. Las mechas pueden atravesarlas un poco sin que nada cambie.",
+  "Y algo muy común: cuando una resistencia se rompe, muchas veces pasa a funcionar como soporte."
+ ],
+ "3.1-b": [
+  "Aquí tienes dos gráficos con el mismo rango, y la misma resistencia en dos mil trescientos noventa y cinco.",
+  "En el primero hay un rompimiento real: la vela cierra fuera de la zona, y cuando el precio vuelve a probarla, se sostiene.",
+  "En el segundo, la mecha supera el nivel, pero la vela cierra dentro, y el precio regresa. Eso es un falso rompimiento.",
+  "La lección: espera al cierre, no al primer toque. Y define desde antes qué invalidaría tu idea."
+ ],
+ "3.1-c": [
+  "En una tendencia alcista, cada máximo y cada mínimo quedan por encima del anterior.",
+  "En una bajista pasa al revés: máximos y mínimos cada vez más bajos.",
+  "Y en un rango, el precio rebota entre un soporte y una resistencia, sin una dirección clara.",
+  "Ahora, el mismo mercado se ve distinto según la temporalidad. En el gráfico de cuatro horas vemos una tendencia…",
+  "…pero en quince minutos, ese último tramo es en realidad un rango.",
+  "Por eso, empieza por la temporalidad mayor para entender el contexto, y usa la menor para afinar la entrada."
+ ],
+ "3.2-a": [
+  "Una media móvil de veinte promedia los últimos veinte cierres. Así suaviza el precio y deja ver la dirección.",
+  "Como se calcula con datos pasados, siempre va un poco atrasada. Confirma lo que pasó, pero no se adelanta.",
+  "Su pendiente, y si el precio está por encima o por debajo, te dan una buena idea del contexto.",
+  "El erre ese i, por su parte, compara la fuerza de las subidas con la de las bajadas recientes, en una escala de cero a cien.",
+  "Pero cuidado: que esté sobre setenta o bajo treinta no es una orden de vender o comprar. Es información de contexto, nada más."
+ ],
+ "3.2-b": [
+  "El rango verdadero mide cuánto recorrió una vela, incluido cualquier hueco respecto al cierre anterior.",
+  "El a te erre simplemente promedia los últimos catorce rangos verdaderos.",
+  "Cuando el mercado se agita, por ejemplo después de un dato económico, el a te erre sube.",
+  "Por eso, un stop basado en el a te erre se aleja cuando hay más volatilidad, y se acerca cuando el mercado está tranquilo.",
+  "Eso sí: no te dice hacia dónde va el precio. Solo cuánto se está moviendo."
+ ],
+ "3.4-a": [
+  "Partimos de una fecha concreta, y usamos solo la información que había disponible ese día.",
+  "El escenario alcista se confirma con un cierre por encima de dos mil cuatrocientos, y queda invalidado si cierra por debajo de dos mil trescientos ochenta.",
+  "El bajista se confirma con un cierre bajo dos mil trescientos setenta, y se invalida si el precio cierra por encima de dos mil trescientos noventa.",
+  "Y el lateral: el precio se mantiene entre dos mil trescientos setenta y dos mil cuatrocientos, sin cierres por fuera.",
+  "No operar también es una opción válida, por ejemplo si viene un dato de alto impacto o el spread está fuera de lo normal.",
+  "Guarda la fecha, y después compara con lo que realmente pasó, sin reescribir tu hipótesis."
+ ],
+ "4.1-b": [
+  "Compras en dos mil trescientos ochenta, con el stop en dos mil trescientos setenta. Tu riesgo es de diez dólares por onza.",
+  "El viernes, el mercado cierra en dos mil trescientos setenta y siete, y la posición sigue abierta.",
+  "Pero el lunes abre en dos mil trescientos sesenta y medio. Como nunca hubo precio en tu stop, se ejecuta en la primera cotización disponible.",
+  "Resultado: la pérdida casi duplica el riesgo que habías previsto.",
+  "Un stop no te garantiza el precio. Por eso conviene reducir el tamaño antes de los fines de semana y de las noticias importantes."
+ ],
+ "4.2-a": [
+  "El drawdown es cuánto cae tu capital desde su último máximo.",
+  "Se mide en cada momento, y el drawdown máximo es la peor caída de todo el período.",
+  "Y aquí viene lo importante: recuperarse cuesta más que caer. Si pierdes un diez por ciento, necesitas ganar un once para volver.",
+  "Con una caída del veinticinco por ciento, necesitas un treinta y tres. Y si pierdes la mitad, tienes que duplicar lo que te queda.",
+  "Por eso se ponen límites de pérdida por operación y por sesión. Un drawdown pequeño siempre es más fácil de recuperar."
+ ],
+ "4.3-a": [
+  "La estrategia A acierta solo cuatro de cada diez operaciones, pero cuando gana, gana tres veces lo que arriesga.",
+  "Su esperanza es de más cero coma seis erre por operación. Es decir, en promedio, gana más de media unidad de riesgo cada vez.",
+  "La estrategia B acierta siete de cada diez, pero gana medio erre y pierde uno completo.",
+  "Su esperanza es de apenas cero coma cero cinco erre. Prácticamente cero.",
+  "Y si a cada operación le restamos un costo de cero coma uno erre, A sigue ganando, mientras que B pasa a perder.",
+  "La conclusión: la tasa de acierto, por sí sola, no te dice nada. Lo que importa es cuánto ganas y cuánto pierdes."
+ ],
+ "4.4-a": [
+  "Entras en cien, con el stop en noventa y ocho. Tu pérdida máxima planeada es un erre.",
+  "El precio se acerca al stop, y decides moverlo para darle un poco más de espacio.",
+  "Y vuelve a pasar. Ahora el riesgo es el doble, y esta ya no es la operación que habías planeado.",
+  "Finalmente sales en noventa y cuatro, con una pérdida de tres erre.",
+  "Una buena regla para tu diario: el stop solo se mueve a favor de la operación, nunca para ampliar la pérdida."
+ ],
+ "5.1-a": [
+  "Cuanto más corto es tu horizonte de operación, más operaciones vas a hacer.",
+  "Y con más operaciones, el spread y las comisiones pesan mucho más frente a objetivos pequeños.",
+  "Además, los horizontes cortos te exigen pasar más tiempo frente a la pantalla.",
+  "En cambio, los horizontes largos mantienen posiciones abiertas de noche y en fines de semana, con el riesgo de que el precio salte.",
+  "No existe un horizonte perfecto. Elige el que encaje con tu tiempo disponible y con tus costos."
+ ],
+ "5.2-a": [
+  "Las estrategias de tendencia compran los retrocesos cuando el mercado ya tiene una dirección clara.",
+  "Las de ruptura entran cuando el precio sale de un rango con fuerza.",
+  "Y las de reversión a la media apuestan a que un exceso vuelve hacia el promedio.",
+  "Cada familia funciona en su propio tipo de mercado, y cada una tiene su forma de fallar. Antes de operar, escribe las dos cosas."
+ ],
+ "5.3-a": [
+  "Comprar retrocesos en tendencia es una buena idea, pero todavía no es un sistema.",
+  "Primero, define qué vas a operar, en qué horario y con qué filtro.",
+  "Después, la señal, la entrada, dónde se invalida y cómo sales. Todo sin margen de interpretación.",
+  "Y por último, el tamaño de la posición, cuándo no operar y cuándo detener el sistema por completo.",
+  "La prueba es sencilla: si otra persona aplica tus reglas y obtiene exactamente las mismas operaciones, entonces sí tienes reglas."
+ ],
+ "6.1-a": [
+  "Un e te efe intenta replicar un índice. Aquí, los dos empiezan en cien.",
+  "Con el tiempo, las comisiones y los costos de replicar van dejando al fondo un poco por debajo.",
+  "Esa brecha acumulada a lo largo del período es la diferencia de seguimiento.",
+  "El tracking error, en cambio, mide cuánto oscila esa diferencia. Es decir, qué tan regular es el seguimiento.",
+  "Para compararlos bien, usa siempre el mismo período y los mismos datos para el fondo y para el índice."
+ ],
+ "6.2-a": [
+  "En un índice ponderado, no todos los componentes pesan lo mismo.",
+  "Hoy solo sube la empresa A. Las otras cuatro bajan.",
+  "La contribución de cada una es su peso multiplicado por su variación. Y A, sola, aporta casi un punto porcentual.",
+  "Resultado: el índice sube un poquito, aunque la mayoría de sus componentes baja. Eso es concentración.",
+  "Por eso conviene mirar también la amplitud: cuántos componentes acompañan realmente el movimiento."
+ ],
+ "6.3-a": [
+  "En el euro dólar, el euro es la divisa base, y el dólar es la divisa cotizada.",
+  "Si el precio pasa de uno coma cero ocho cincuenta a uno coma cero ocho ochenta, sube treinta pips.",
+  "Ahora, cuánto vale cada pip depende del tamaño de tu posición.",
+  "Esos mismos treinta pips son trescientos dólares en un lote estándar, treinta en un minilote, y apenas tres en un microlote.",
+  "Y si tu cuenta está en otra moneda, el resultado se convierte al tipo de cambio del momento."
+ ],
+ "6.4-a": [
+  "Compras un bitcoin a sesenta mil dólares. Lo puedes hacer al contado, o con un perpetuo apalancado diez veces.",
+  "Con diez veces de apalancamiento, solo aportas seis mil dólares de margen. Y una caída cercana al diez por ciento se lo come entero.",
+  "La liquidación se calcula con el precio de marca y el margen de mantenimiento, así que llega incluso antes de ese diez por ciento.",
+  "Con el mismo movimiento, al contado tienes una pérdida flotante, pero sigues teniendo tu bitcoin. En el perpetuo, el margen desaparece.",
+  "Y no olvides el funding: mientras la posición siga abierta, se paga o se cobra de forma periódica."
+ ],
+ "6.5-a": [
+  "Un futuro se negocia por contratos, y su ficha técnica te dice cuánto vale cada tick.",
+  "Un movimiento de quince dólares son ciento cincuenta ticks. Eso es mil quinientos dólares en el contrato estándar, y ciento cincuenta en el micro.",
+  "Cada día, la cámara de compensación liquida tu posición al precio de cierre y ajusta tu cuenta.",
+  "Así que las pérdidas se descuentan del margen al final de cada sesión, no solo cuando cierras.",
+  "Si tu saldo cae por debajo del margen de mantenimiento, tienes que reponer margen, o la posición se cierra."
+ ],
+ "6.6-a": [
+  "Hablamos de contango cuando los vencimientos lejanos cotizan más caros que los cercanos.",
+  "Y de backwardation cuando pasa lo contrario: los lejanos son más baratos. Suele ser señal de escasez inmediata.",
+  "Esto importa al renovar la posición. Con cada rollover, la pendiente de la curva afecta tu resultado, aunque el precio spot no se mueva.",
+  "Por eso, un producto que sigue futuros puede alejarse bastante del precio spot."
+ ],
+ "6.7-a": [
+  "Una call te da el derecho a comprar al precio de ejercicio. Pagas una prima de cinco, y esa es tu pérdida máxima.",
+  "Empiezas a ganar si, al vencimiento, el precio supera el strike más la prima. En este caso, ciento cinco.",
+  "Una put te da el derecho a vender al strike. Con una prima de cuatro, gana por debajo de noventa y seis.",
+  "Si recorres el precio, verás que la pérdida siempre queda limitada a la prima. La ganancia, en cambio, depende de cuánto se mueva.",
+  "Y antes del vencimiento, su valor también depende del tiempo que queda y de la volatilidad."
+ ],
+ "6.8-a": [
+  "Un bono a diez años, con un cupón del cuatro por ciento, vale cien cuando el mercado exige justamente un cuatro.",
+  "Si los bonos nuevos pagan un cinco por ciento, el tuyo vale menos, y su precio baja hasta ofrecer ese mismo rendimiento.",
+  "En cambio, si el rendimiento baja al tres por ciento, el precio de tu bono sube.",
+  "Y la curva no es recta: cuando las tasas bajan, el precio sube más de lo que cae cuando suben lo mismo. Eso es la convexidad.",
+  "Además, cuanto más largo es el plazo, más sensible es el precio a los cambios de tasas."
+ ],
+ "7.1-a": [
+  "Empezamos con un universo de veinticuatro acciones al inicio del período.",
+  "En el camino, algunas quiebran o dejan de cotizar.",
+  "Si hoy descargas solo las que siguen vivas, esas empresas simplemente desaparecen de tus datos.",
+  "Y entonces el promedio de las sobrevivientes queda muy por encima de lo que realmente habrías obtenido.",
+  "La solución: usa datos que incluyan las empresas retiradas, con la composición que tenía el índice en cada fecha."
+ ],
+ "7.1-b": [
+  "Pruebas mil doscientas combinaciones de parámetros, y te quedas con la mejor.",
+  "En los datos que usaste para ajustarla, la curva se ve casi perfecta.",
+  "Pero en datos que la estrategia nunca vio, el resultado se esfuma. Se había ajustado al ruido.",
+  "Reserva siempre datos fuera de muestra, y desconfía de las curvas demasiado limpias."
+ ],
+ "7.2-a": [
+  "Ajustas los parámetros con una ventana del pasado, y los pruebas en el tramo que viene justo después.",
+  "Luego desplazas las dos ventanas hacia adelante y repites, siempre respetando el orden en el tiempo.",
+  "Al final, unes solo los tramos de prueba. Esa es la evaluación honesta, fuera de muestra.",
+  "Y si los parámetros cambian mucho de una ventana a otra, es señal de que la idea es frágil."
+ ],
+ "7.4-a": [
+  "Tienes cien operaciones: cuarenta y cinco ganan uno coma cinco erre, y cincuenta y cinco pierden un erre. Esta es la secuencia que viviste.",
+  "Si mezclas esas mismas operaciones en otro orden, el resultado final es igual, pero el camino cambia por completo.",
+  "La distribución de las caídas máximas te muestra lo que podrías vivir con exactamente la misma ventaja.",
+  "Así que dimensiona pensando en la peor caída razonable, no solo en la que te tocó."
+ ],
+ "8.1-a": [
+  "El libro de órdenes muestra cuánto hay para comprar, el bid, y para vender, el ask, en cada precio.",
+  "Ahora envías una compra a mercado de ocho lotes.",
+  "La orden se come todo lo disponible en cada nivel, y sigue subiendo al siguiente.",
+  "Al final, tu precio medio queda por encima del mejor ask. Eso es el impacto de mercado.",
+  "Cuando hay poca profundidad, el propio tamaño de tu orden es lo que mueve el precio."
+ ],
+ "8.2-a": [
+  "Cada señal que genera tu sistema recibe un identificador único.",
+  "Ese mismo identificador viaja con la orden, con la ejecución y con la posición.",
+  "Así, si la misma señal llega dos veces, el sistema la reconoce y no envía una orden duplicada.",
+  "Después de una caída de conexión, toca reconciliar: comparar lo que crees tener con lo que dice el bróker.",
+  "Y si no cuadra, el sistema se detiene. Pruébalo bien en demo antes de confiar en él."
+ ],
+ "8.4-a": [
+  "Este historial muestra un balance que sube casi sin caídas. Parece perfecto.",
+  "Pero el balance solo registra las operaciones cerradas. Las que van perdiendo pueden seguir abiertas.",
+  "La equity cuenta otra historia: pérdidas flotantes cada vez más profundas. Es típico de quien promedia en contra o usa martingala.",
+  "Además, al copiarlo pagarías comisiones y deslizamiento que este historial no muestra.",
+  "Antes de confiar en un historial, pide la equity, la caída máxima, el apalancamiento y los cambios de reglas."
+ ]
+}

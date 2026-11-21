@@ -1,0 +1,20 @@
+1
+00:00:03,000 --> 00:00:08,500
+Cada señal recibe un identificador único.
+
+2
+00:00:08,500 --> 00:00:15,000
+Ese identificador viaja a la orden, a la ejecución y a la posición.
+
+3
+00:00:15,000 --> 00:00:20,500
+Si la misma señal llega dos veces, el identificador evita una orden duplicada.
+
+4
+00:00:20,500 --> 00:00:26,500
+Tras una caída de conexión, reconcilia: lo que crees tener contra lo que el broker dice.
+
+5
+00:00:26,500 --> 00:00:32,500
+Si no cuadra, el sistema se detiene. Pruébalo en demo antes de confiar en él.
+

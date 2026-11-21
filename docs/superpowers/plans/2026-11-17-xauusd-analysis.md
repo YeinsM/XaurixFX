@@ -1,3 +1,5 @@
+> Diseño histórico sustituido el 2026-11-17 por petición del usuario: prompt directo a Gemini y respuesta íntegra, sin GoldPrice ni JSON obligatorio. Ver docs/project.md y APP-10 en docs/work.md.
+
 # Daily XAUUSD Analysis Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
